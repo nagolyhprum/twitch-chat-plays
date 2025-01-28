@@ -15,6 +15,7 @@ let youtubeUsers: User[] = [];
 
 setTimeout(async () => {
   twitchUsers = await twitch.getChatters();
+  twitch.getMessages();
 });
 
 setTimeout(async () => {

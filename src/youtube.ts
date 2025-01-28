@@ -18,18 +18,23 @@ export class YouTubeLiveStream implements LiveStream {
     }
     return localStorage.getItem("youtube");
   }
-  private async getRequest(path: string) {
-    const response = await fetch(`https://www.googleapis.com/${path}`, {
-      headers: {
-        Authorization: `Bearer ${this.accessToken}`,
-      },
-    });
+  private async getRequest(path: string, params?: Record<string, string>) {
+    const query = new URLSearchParams(params).toString();
+    const search = query ? `?${query}` : "";
+    const response = await fetch(
+      `https://www.googleapis.com/${path}${search}`,
+      {
+        headers: {
+          Authorization: `Bearer ${this.accessToken}`,
+        },
+      }
+    );
     return response.json();
   }
   private async getLiveBroadcast(): Promise<Details> {
-    const json = await this.getRequest(
-      "youtube/v3/liveBroadcasts?broadcastStatus=active"
-    );
+    const json = await this.getRequest("youtube/v3/liveBroadcasts", {
+      broadcastStatus: "active",
+    });
     const snippet = json.items[0].snippet;
     return {
       id: snippet.liveChatId,
@@ -37,9 +42,10 @@ export class YouTubeLiveStream implements LiveStream {
     };
   }
   private async getLiveChat(liveChatId: string) {
-    const json = await this.getRequest(
-      `youtube/v3/liveChat/messages?liveChatId=${liveChatId}&part=authorDetails,snippet`
-    );
+    const json = await this.getRequest("youtube/v3/liveChat/messages", {
+      liveChatId: liveChatId,
+      part: ["authorDetails", "snippet"].join(","),
+    });
     const ids = new Set<string>();
     return json.items
       .map(

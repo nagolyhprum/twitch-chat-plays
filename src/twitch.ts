@@ -16,10 +16,7 @@ export class TwitchLiveStream implements LiveStream {
     }
     return localStorage.getItem("twitch");
   }
-  private async getTwitchRequest(
-    path: string,
-    params?: Record<string, string>
-  ) {
+  private async getRequest(path: string, params?: Record<string, string>) {
     const query = new URLSearchParams(params).toString();
     const search = query ? `?${query}` : "";
     const clientId = this.clientId;
@@ -35,7 +32,7 @@ export class TwitchLiveStream implements LiveStream {
     return response.json();
   }
   private async getUser() {
-    const users = await this.getTwitchRequest("/users");
+    const users = await this.getRequest("/users");
     const user = users.data[0];
     return {
       id: user.id,
@@ -44,7 +41,7 @@ export class TwitchLiveStream implements LiveStream {
   }
   async getChatters(): Promise<Chatter[]> {
     const user = await this.getUser();
-    const chatters = await this.getTwitchRequest("/chat/chatters", {
+    const chatters = await this.getRequest("/chat/chatters", {
       broadcaster_id: user.id,
       moderator_id: user.id,
     });
@@ -53,4 +50,13 @@ export class TwitchLiveStream implements LiveStream {
       name: chatter.user_name,
     }));
   }
+  async getMessages(): Promise<Message[]> {
+    const user = await this.getUser();
+    const json = await this.getRequest("/shared_chat/session", {
+      broadcaster_id: user.id,
+    });
+    console.log(json);
+  }
 }
+
+// TODO get session messages https://dev.twitch.tv/docs/chat/send-receive-messages/

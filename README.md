@@ -54,10 +54,10 @@ Feel free to check [our documentation](https://docs.astro.build) or jump into ou
 - create a new project for twitch chat / youtube plays
 - Get a twitch api key
 - show all chatters in screen
+- how chatters as characters
 
 # 4 hours
 
-- how chatters as characters
 - when they chat show a speech bubble
 
 Coding a Twitch Chat Plays Game from Scratch
