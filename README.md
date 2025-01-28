@@ -46,3 +46,22 @@ All commands are run from the root of the project, from a terminal:
 ## 👀 Want to learn more?
 
 Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+
+---
+
+# Done
+
+- create a new project for twitch chat / youtube plays
+- Get a twitch api key
+- show all chatters in screen
+
+# 4 hours
+
+- how chatters as characters
+- when they chat show a speech bubble
+
+Coding a Twitch Chat Plays Game from Scratch
+
+Taking suggestions from the audience on what to code.
+
+Github:https://github.com/nagolyhprum/twitch-chat-plays
