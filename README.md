@@ -65,3 +65,8 @@ Coding a Twitch Chat Plays Game from Scratch
 Taking suggestions from the audience on what to code.
 
 Github:https://github.com/nagolyhprum/twitch-chat-plays
+
+# Ideas
+
+- Mortal Combat
+- Box 2 throw stuff?

@@ -5,22 +5,47 @@ const tokens = new Tokens();
 
 const state = tokens.create(process.env.CSRF_SECRET);
 
-const params = new URLSearchParams({
+// TODO : VERIFY CSRF
+
+const twitchParams = new URLSearchParams({
   client_id: process.env.TWITCH_CLIENT_ID,
   force_verify: "true",
-  redirect_uri: "https://localhost:4321",
+  redirect_uri: "https://localhost:4321?service=twitch",
   response_type: "token",
-  scope: "moderator:read:chatters",
+  scope: ["moderator:read:chatters"].join(" "),
+  state,
+});
+
+const youtubeParams = new URLSearchParams({
+  client_id: process.env.GOOGLE_CLIENT_ID,
+  redirect_uri: "http://localhost:4321?service=youtube",
+  response_type: "token",
+  scope: [
+    "https://www.googleapis.com/auth/youtube.readonly",
+    "https://www.googleapis.com/auth/youtube",
+    "https://www.googleapis.com/auth/youtube.force-ssl",
+  ].join(" "),
   state,
 });
 ---
 
 <!doctype html>
 <html>
-  <head></head>
+  <head> </head>
   <body>
-    <a href={`https://id.twitch.tv/oauth2/authorize?${params}}`}>Authorize</a>
-    <canvas data-client-id={process.env.TWITCH_CLIENT_ID}></canvas>
+    <canvas
+      data-youtube-client-id={process.env.GOOGLE_CLIENT_ID}
+      data-twitch-client-id={process.env.TWITCH_CLIENT_ID}></canvas>
+    <div>
+      <a href={`https://id.twitch.tv/oauth2/authorize?${twitchParams}}`}
+        >Authorize Twitch</a
+      >
+    </div>
+    <div>
+      <a href={`https://accounts.google.com/o/oauth2/v2/auth?${youtubeParams}`}
+        >Authorize YouTube</a
+      >
+    </div>
     <script>
       import "../game";
     </script>

@@ -6,27 +6,35 @@ export class TwitchLiveStream implements LiveStream {
     this.accessToken = this.getAccessToken();
   }
   private getAccessToken() {
-    const accesToken = new URLSearchParams(location.hash.slice(1)).get(
-      "access_token"
-    );
-    if (accesToken) {
-      localStorage.setItem("twitch", accesToken);
+    const hash = new URLSearchParams(location.hash.slice(1));
+    const search = new URLSearchParams(location.search.slice(1));
+    if (search.get("service") === "twitch") {
+      const accesToken = hash.get("access_token");
+      if (accesToken) {
+        localStorage.setItem("twitch", accesToken);
+      }
     }
     return localStorage.getItem("twitch");
   }
-  private async getTwitchRequest(url: string, params?: Record<string, string>) {
+  private async getTwitchRequest(
+    path: string,
+    params?: Record<string, string>
+  ) {
     const query = new URLSearchParams(params).toString();
     const search = query ? `?${query}` : "";
     const clientId = this.clientId;
-    const response = await fetch(`https://api.twitch.tv/helix${url}${search}`, {
-      headers: {
-        Authorization: `Bearer ${this.accessToken}`,
-        "Client-Id": clientId,
-      },
-    });
+    const response = await fetch(
+      `https://api.twitch.tv/helix${path}${search}`,
+      {
+        headers: {
+          Authorization: `Bearer ${this.accessToken}`,
+          "Client-Id": clientId,
+        },
+      }
+    );
     return response.json();
   }
-  async getUser() {
+  private async getUser() {
     const users = await this.getTwitchRequest("/users");
     const user = users.data[0];
     return {

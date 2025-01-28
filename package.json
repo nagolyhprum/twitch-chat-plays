@@ -11,5 +11,8 @@
   "dependencies": {
     "astro": "^5.1.10",
     "csrf": "^3.1.0"
+  },
+  "devDependencies": {
+    "@types/gapi": "^0.0.47"
   }
 }

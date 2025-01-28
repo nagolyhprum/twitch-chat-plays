@@ -18,6 +18,10 @@ export interface Player {
 }
 
 export interface LiveStream {
-  getUser(): Promise<User>;
   getChatters(): Promise<Chatter[]>;
+}
+
+export interface Details {
+  id: string;
+  name: string;
 }
