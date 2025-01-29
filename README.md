@@ -55,10 +55,12 @@ Feel free to check [our documentation](https://docs.astro.build) or jump into ou
 - Get a twitch api key
 - show all chatters in screen
 - how chatters as characters
-
-# 4 hours
-
 - when they chat show a speech bubble
+
+# Todo
+
+- Animate characters
+- Add some chat commands?
 
 Coding a Twitch Chat Plays Game from Scratch
 
