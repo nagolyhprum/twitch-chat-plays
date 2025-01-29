@@ -11,3 +11,5 @@ export const COLUMNS = Math.floor(WIDTH / CELL_SIZE);
 export const ROWS = Math.floor(HEIGHT / CELL_SIZE);
 export const CELL_OFFSET_X = WIDTH / 2 - (COLUMNS * CELL_SIZE) / 2;
 export const CELL_OFFSET_y = HEIGHT / 2 - (ROWS * CELL_SIZE) / 2;
+export const ANIMATION_LENGTH = 3000;
+export const WALK_SPEED = 300;

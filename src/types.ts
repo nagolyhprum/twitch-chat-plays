@@ -25,6 +25,7 @@ export interface Player {
   character: number;
   source: UserSource;
   direction: Direction;
+  lastMovedAt: number;
 }
 
 export interface LiveStream {
@@ -42,7 +43,7 @@ export interface Message {
   id: string;
   text: string;
   userId: string;
-  publishedAt: Date;
+  publishedAt: number;
 }
 
 export interface UserWithMessages extends User {

@@ -42,7 +42,7 @@ export class TwitchLiveStream implements LiveStream {
           id,
           text,
           userId,
-          publishedAt: new Date(message_timestamp),
+          publishedAt: new Date(message_timestamp).getTime(),
         });
       }
     };

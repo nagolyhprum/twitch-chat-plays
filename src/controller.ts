@@ -52,6 +52,7 @@ export class Controller {
         fill: "black",
         character: Math.floor(Math.random() * 4),
         direction: "down",
+        lastMovedAt: 0,
       };
       this.players[user.id] = player;
     });
@@ -69,17 +70,30 @@ export class Controller {
     this.messages = messages;
   }
   runCommand(command: string, player: Player) {
+    console.log("command", command);
     const tokens = parseCommand(command);
     if (tokens[0] === "character") {
       this.runCharacterCommand(tokens.slice(1), player);
     }
   }
   runCharacterCommand(tokens: string[], player: Player) {
+    console.log("character", tokens);
     if (tokens[0] === "move") {
       this.runMoveCommand(tokens.slice(1), player);
     }
+    if (tokens[0] === "customize") {
+      this.runCusomizeCommand(tokens.slice(1), player);
+    }
+  }
+  runCusomizeCommand(tokens: string[], player: Player) {
+    console.log("customize", tokens);
+    const index = parseInt(tokens[0] ?? "");
+    if (!isNaN(index)) {
+      player.character = index % 4;
+    }
   }
   runMoveCommand(tokens: string[], player: Player) {
+    console.log("move", tokens);
     const direction = tokens[0];
     if (isDirection(direction)) {
       switch (direction) {
@@ -103,12 +117,13 @@ export class Controller {
       player.row = Math.max(Math.min(ROWS - 1, player.row), 0);
       player.column = Math.max(Math.min(COLUMNS - 1, player.column), 0);
       player.direction = direction;
+      player.lastMovedAt = Date.now();
     }
   }
   getMessages() {
     const ids = new Set<string>();
     return this.messages
-      .sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime())
+      .sort((a, b) => b.publishedAt - a.publishedAt)
       .filter((message) => {
         return message.text[0] !== "!";
       })

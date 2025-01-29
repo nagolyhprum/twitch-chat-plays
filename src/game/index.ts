@@ -21,6 +21,7 @@ let users: User[] = [];
 let messages: Message[] = [];
 
 const update = async () => {
+  console.log("update");
   const tempUsers: User[] = [];
   const tempMessages: Message[] = [];
   const now = Date.now();
@@ -30,7 +31,7 @@ const update = async () => {
         tempUsers.push(...(await stream.getChatters()));
         tempMessages.push(
           ...(await stream.getMessages()).filter(
-            (message) => now - message.publishedAt.getTime() < 1000 * 60 * 10
+            (message) => now - message.publishedAt < 1000 * 60 * 10
           )
         );
       })

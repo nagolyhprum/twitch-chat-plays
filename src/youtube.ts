@@ -67,7 +67,7 @@ export class YouTubeLiveStream implements LiveStream {
             id: item.id,
             userId: id,
             text: item.snippet.textMessageDetails.messageText,
-            publishedAt: new Date(item.snippet.publishedAt),
+            publishedAt: new Date(item.snippet.publishedAt).getTime(),
           });
           usersById[id] = user;
           return user;
