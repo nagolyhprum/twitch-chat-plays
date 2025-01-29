@@ -102,10 +102,7 @@ export class TwitchLiveStream implements LiveStream {
           source: "twitch",
         })
       )
-      .filter(
-        (chatter: any) =>
-          chatter.id !== user.id && chatter.id !== STREAM_ELEMENTS_ID
-      );
+      .filter((chatter: any) => chatter.id !== STREAM_ELEMENTS_ID);
   }
   async getMessages(): Promise<Message[]> {
     return this.messages;

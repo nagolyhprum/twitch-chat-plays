@@ -56,10 +56,10 @@ Feel free to check [our documentation](https://docs.astro.build) or jump into ou
 - show all chatters in screen
 - how chatters as characters
 - when they chat show a speech bubble
+- Saving characters
 
 # Todo
 
-- Saving characters
 - Animate characters
 
 Coding a Twitch Chat Plays Game from Scratch
