@@ -6,8 +6,8 @@ export interface User {
 export interface Player {
   id: string;
   name: string;
-  x: number;
-  y: number;
+  column: number;
+  row: number;
   width: number;
   height: number;
   fill: string;
@@ -26,6 +26,7 @@ export interface StreamDetails {
 }
 
 export interface Message {
+  id: string;
   text: string;
   userId: string;
   publishedAt: Date;

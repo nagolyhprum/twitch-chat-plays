@@ -64,6 +64,7 @@ export class YouTubeLiveStream implements LiveStream {
           messages: [],
         };
         user.messages.push({
+          id: item.id,
           userId: id,
           text: item.snippet.textMessageDetails.messageText,
           publishedAt: new Date(item.snippet.publishedAt),
@@ -80,7 +81,7 @@ export class YouTubeLiveStream implements LiveStream {
   async getChatters(): Promise<User[]> {
     const stream = await this.getLiveBroadcast();
     const users = await this.getLiveChat(stream.broadcastId);
-    return users.filter((user) => user.id !== stream.userId);
+    return users;
   }
   async getMessages(): Promise<Message[]> {
     const stream = await this.getLiveBroadcast();

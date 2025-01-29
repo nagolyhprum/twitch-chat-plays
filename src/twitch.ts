@@ -37,7 +37,9 @@ export class TwitchLiveStream implements LiveStream {
         const text = data.payload.event.message.text;
         const userId = data.payload.event.chatter_user_id;
         const message_timestamp = data.metadata.message_timestamp;
+        const id = data.metadata.message_id;
         this.messages.push({
+          id,
           text,
           userId,
           publishedAt: new Date(message_timestamp),
