@@ -95,10 +95,13 @@ export class TwitchLiveStream implements LiveStream {
       moderator_id: user.id,
     });
     return chatters.data
-      .map((chatter: any) => ({
-        id: chatter.user_id,
-        name: chatter.user_name,
-      }))
+      .map(
+        (chatter: any): User => ({
+          id: chatter.user_id,
+          name: chatter.user_name,
+          source: "twitch",
+        })
+      )
       .filter(
         (chatter: any) =>
           chatter.id !== user.id && chatter.id !== STREAM_ELEMENTS_ID

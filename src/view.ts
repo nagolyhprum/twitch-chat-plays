@@ -15,6 +15,16 @@ import type { Player } from "./types";
 const characters = new Image();
 characters.src = "/public/RPG_assets.png";
 
+const youtubeIcon = new Image();
+youtubeIcon.src = "/public/youtube.svg";
+const twitchIcon = new Image();
+twitchIcon.src = "/public/twitch.svg";
+
+const sourceMap = {
+  youtube: youtubeIcon,
+  twitch: twitchIcon,
+} as const;
+
 export class View {
   private context: CanvasRenderingContext2D;
   constructor(canvas: HTMLCanvasElement, private controller: Controller) {
@@ -66,6 +76,9 @@ export class View {
         dx = player.column * CELL_SIZE + CELL_SIZE / 2 - dw / 2,
         dy = player.row * CELL_SIZE + CELL_SIZE / 2 - dh / 2;
       this.context.drawImage(characters, sx, sy, sw, sh, dx, dy, dw, dh);
+      const iconSize = FONT_SIZE;
+      const sourceIcon = sourceMap[player.source];
+      this.context.drawImage(sourceIcon, dx + dw - 5, dy, iconSize, iconSize);
     });
   }
   private clear() {

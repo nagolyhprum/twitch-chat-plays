@@ -59,8 +59,8 @@ Feel free to check [our documentation](https://docs.astro.build) or jump into ou
 
 # Todo
 
+- Saving characters
 - Animate characters
-- Add some chat commands?
 
 Coding a Twitch Chat Plays Game from Scratch
 

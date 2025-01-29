@@ -1,6 +1,9 @@
+export type UserSource = "twitch" | "youtube";
+
 export interface User {
   id: string;
   name: string;
+  source: UserSource;
 }
 
 export interface Player {
@@ -12,6 +15,7 @@ export interface Player {
   height: number;
   fill: string;
   character: number;
+  source: UserSource;
 }
 
 export interface LiveStream {

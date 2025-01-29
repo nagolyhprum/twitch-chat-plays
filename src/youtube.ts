@@ -6,8 +6,6 @@ import type {
   UserWithMessages,
 } from "./types";
 
-("https://www.googleapis.com/youtube/v3/liveBroadcasts");
-
 export class YouTubeLiveStream implements LiveStream {
   private accessToken: string | null;
   constructor(private clientId: string) {
@@ -61,6 +59,7 @@ export class YouTubeLiveStream implements LiveStream {
         const user: UserWithMessages = usersById[id] || {
           id,
           name: item.authorDetails.displayName,
+          source: "youtube",
           messages: [],
         };
         user.messages.push({

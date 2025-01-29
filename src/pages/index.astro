@@ -36,6 +36,10 @@ const youtubeParams = new URLSearchParams({
     <canvas
       data-youtube-client-id={process.env.YOUTUBE_CLIENT_ID}
       data-twitch-client-id={process.env.TWITCH_CLIENT_ID}></canvas>
+    <h1>Commands</h1>
+    <ul>
+      <ul>!character move (up | right | down | left)</ul>
+    </ul>
     <div>
       <a href={`https://id.twitch.tv/oauth2/authorize?${twitchParams}}`}
         >Authorize Twitch</a

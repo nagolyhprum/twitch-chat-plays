@@ -1,13 +1,11 @@
-import {
-  BOUNDARY,
-  CELL_SIZE,
-  CHARACTER_SIZE,
-  COLUMNS,
-  HEIGHT,
-  ROWS,
-  WIDTH,
-} from "./constant";
+import { CHARACTER_SIZE, COLUMNS, ROWS } from "./constant";
 import type { Message, Player, User } from "./types";
+import yaml from "yaml";
+import fs from "fs/promises";
+
+const save = (input: unknown) => {};
+
+const load = () => {};
 
 const parseCommand = (input: string): string[] => {
   return input.split(/\s+/).filter((_) => _);
@@ -70,19 +68,25 @@ export class Controller {
   runMoveCommand(tokens: string[], player: Player) {
     const direction = tokens[0];
     switch (direction) {
-      case "up":
+      case "up": {
         player.row--;
         break;
-      case "right":
+      }
+      case "right": {
         player.column++;
         break;
-      case "down":
+      }
+      case "down": {
         player.row++;
         break;
-      case "left":
+      }
+      case "left": {
         player.column--;
         break;
+      }
     }
+    player.row = Math.max(Math.min(ROWS - 1, player.row), 0);
+    player.column = Math.max(Math.min(COLUMNS - 1, player.column), 0);
   }
   getMessages() {
     const ids = new Set<string>();
