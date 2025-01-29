@@ -1,4 +1,11 @@
-import type { Chatter, Details, LiveStream, User } from "./types";
+import type {
+  Chatter,
+  Details,
+  LiveStream,
+  Message,
+  User,
+  UserWithMessages,
+} from "./types";
 
 ("https://www.googleapis.com/youtube/v3/liveBroadcasts");
 
@@ -35,35 +42,48 @@ export class YouTubeLiveStream implements LiveStream {
     const json = await this.getRequest("youtube/v3/liveBroadcasts", {
       broadcastStatus: "active",
     });
-    const snippet = json.items[0].snippet;
+    const snippet = json.items[0]?.snippet;
     return {
       id: snippet.liveChatId,
       name: snippet.title,
     };
   }
-  private async getLiveChat(liveChatId: string) {
+  private async getLiveChat(liveChatId: string): Promise<UserWithMessages[]> {
     const json = await this.getRequest("youtube/v3/liveChat/messages", {
       liveChatId: liveChatId,
       part: ["authorDetails", "snippet"].join(","),
     });
     const ids = new Set<string>();
+    const usersById: Record<string, UserWithMessages> = {};
     return json.items
-      .map(
-        (item: any): User => ({
-          id: item.authorDetails.channelId,
+      .map((item: any): UserWithMessages => {
+        const id = item.authorDetails.channelId;
+        const user: UserWithMessages = usersById[id] || {
+          id,
           name: item.authorDetails.displayName,
-        })
-      )
+          messages: [],
+        };
+        user.messages.push({
+          userId: id,
+          text: item.snippet.textMessageDetails.messageText,
+          publishedAt: new Date(item.snippet.publishedAt),
+        });
+        usersById[id] = user;
+        return user;
+      })
       .filter((user: User) => {
         const has = ids.has(user.id);
         ids.add(user.id);
         return !has;
       });
   }
-
   async getChatters(): Promise<Chatter[]> {
     const stream = await this.getLiveBroadcast();
     return this.getLiveChat(stream.id);
-    return [];
+  }
+  async getMessages(): Promise<Message[]> {
+    const stream = await this.getLiveBroadcast();
+    const users = await this.getLiveChat(stream.id);
+    return users.flatMap((user) => user.messages);
   }
 }

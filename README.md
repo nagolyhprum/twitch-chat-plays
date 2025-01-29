@@ -70,3 +70,5 @@ Github:https://github.com/nagolyhprum/twitch-chat-plays
 
 - Mortal Combat
 - Box 2 throw stuff?
+- Fireballs
+- BIGGER WITH MORE MESSAGES
