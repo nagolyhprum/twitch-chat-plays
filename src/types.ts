@@ -19,8 +19,9 @@ export interface LiveStream {
   getMessages(): Promise<Message[]>;
 }
 
-export interface Details {
-  id: string;
+export interface StreamDetails {
+  broadcastId: string;
+  userId: string;
   name: string;
 }
 

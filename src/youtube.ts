@@ -1,8 +1,7 @@
 import type {
-  Chatter,
-  Details,
   LiveStream,
   Message,
+  StreamDetails,
   User,
   UserWithMessages,
 } from "./types";
@@ -38,13 +37,14 @@ export class YouTubeLiveStream implements LiveStream {
     );
     return response.json();
   }
-  private async getLiveBroadcast(): Promise<Details> {
+  private async getLiveBroadcast(): Promise<StreamDetails> {
     const json = await this.getRequest("youtube/v3/liveBroadcasts", {
       broadcastStatus: "active",
     });
     const snippet = json.items[0]?.snippet;
     return {
-      id: snippet.liveChatId,
+      userId: snippet.channelId,
+      broadcastId: snippet.liveChatId,
       name: snippet.title,
     };
   }
@@ -77,13 +77,14 @@ export class YouTubeLiveStream implements LiveStream {
         return !has;
       });
   }
-  async getChatters(): Promise<Chatter[]> {
+  async getChatters(): Promise<User[]> {
     const stream = await this.getLiveBroadcast();
-    return this.getLiveChat(stream.id);
+    const users = await this.getLiveChat(stream.broadcastId);
+    return users.filter((user) => user.id !== stream.userId);
   }
   async getMessages(): Promise<Message[]> {
     const stream = await this.getLiveBroadcast();
-    const users = await this.getLiveChat(stream.id);
+    const users = await this.getLiveChat(stream.broadcastId);
     return users.flatMap((user) => user.messages);
   }
 }

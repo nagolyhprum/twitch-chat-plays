@@ -1,4 +1,6 @@
-import type { Chatter, LiveStream, Message } from "./types";
+import type { LiveStream, Message, User } from "./types";
+
+const STREAM_ELEMENTS_ID = "100135110";
 
 export class TwitchLiveStream implements LiveStream {
   private accessToken: string | null;
@@ -84,16 +86,21 @@ export class TwitchLiveStream implements LiveStream {
       name: user.display_name,
     };
   }
-  async getChatters(): Promise<Chatter[]> {
+  async getChatters(): Promise<User[]> {
     const user = await this.getUser();
     const chatters = await this.getRequest("/chat/chatters", {
       broadcaster_id: user.id,
       moderator_id: user.id,
     });
-    return chatters.data.map((chatter: any) => ({
-      id: chatter.user_id,
-      name: chatter.user_name,
-    }));
+    return chatters.data
+      .map((chatter: any) => ({
+        id: chatter.user_id,
+        name: chatter.user_name,
+      }))
+      .filter(
+        (chatter: any) =>
+          chatter.id !== user.id && chatter.id !== STREAM_ELEMENTS_ID
+      );
   }
   async getMessages(): Promise<Message[]> {
     return this.messages;
