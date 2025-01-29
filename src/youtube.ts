@@ -53,29 +53,31 @@ export class YouTubeLiveStream implements LiveStream {
     });
     const ids = new Set<string>();
     const usersById: Record<string, UserWithMessages> = {};
-    return json.items
-      .map((item: any): UserWithMessages => {
-        const id = item.authorDetails.channelId;
-        const user: UserWithMessages = usersById[id] || {
-          id,
-          name: item.authorDetails.displayName,
-          source: "youtube",
-          messages: [],
-        };
-        user.messages.push({
-          id: item.id,
-          userId: id,
-          text: item.snippet.textMessageDetails.messageText,
-          publishedAt: new Date(item.snippet.publishedAt),
-        });
-        usersById[id] = user;
-        return user;
-      })
-      .filter((user: User) => {
-        const has = ids.has(user.id);
-        ids.add(user.id);
-        return !has;
-      });
+    return (
+      json.items
+        ?.map((item: any): UserWithMessages => {
+          const id = item.authorDetails.channelId;
+          const user: UserWithMessages = usersById[id] || {
+            id,
+            name: item.authorDetails.displayName,
+            source: "youtube",
+            messages: [],
+          };
+          user.messages.push({
+            id: item.id,
+            userId: id,
+            text: item.snippet.textMessageDetails.messageText,
+            publishedAt: new Date(item.snippet.publishedAt),
+          });
+          usersById[id] = user;
+          return user;
+        })
+        .filter((user: User) => {
+          const has = ids.has(user.id);
+          ids.add(user.id);
+          return !has;
+        }) ?? []
+    );
   }
   async getChatters(): Promise<User[]> {
     const stream = await this.getLiveBroadcast();

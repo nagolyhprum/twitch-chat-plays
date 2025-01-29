@@ -1,11 +1,5 @@
 import { CHARACTER_SIZE, COLUMNS, ROWS } from "./constant";
 import type { Message, Player, User } from "./types";
-import yaml from "yaml";
-import fs from "fs/promises";
-
-const save = (input: unknown) => {};
-
-const load = () => {};
 
 const parseCommand = (input: string): string[] => {
   return input.split(/\s+/).filter((_) => _);
@@ -18,6 +12,25 @@ export class Controller {
   constructor() {
     this.players = {};
     this.messages = [];
+  }
+  async load() {
+    const response = await fetch("/users");
+    const json = await response.json();
+    this.players = json.data.players;
+    this.processedMessages = new Set(json.data.processedMessages);
+  }
+  async save() {
+    const response = await fetch("/users", {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      method: "POST",
+      body: JSON.stringify({
+        players: this.players,
+        processedMessages: Array.from(this.processedMessages),
+      }),
+    });
+    return response.json();
   }
   private getRandomColorComponent() {
     return Math.floor(Math.random() * 256);
