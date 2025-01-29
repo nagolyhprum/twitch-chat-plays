@@ -1,5 +1,5 @@
 import { CHARACTER_SIZE, COLUMNS, ROWS } from "./constant";
-import type { Message, Player, User } from "./types";
+import { isDirection, type Message, type Player, type User } from "./types";
 
 const parseCommand = (input: string): string[] => {
   return input.split(/\s+/).filter((_) => _);
@@ -51,6 +51,7 @@ export class Controller {
         height: CHARACTER_SIZE,
         fill: "black",
         character: Math.floor(Math.random() * 4),
+        direction: "down",
       };
       this.players[user.id] = player;
     });
@@ -80,26 +81,29 @@ export class Controller {
   }
   runMoveCommand(tokens: string[], player: Player) {
     const direction = tokens[0];
-    switch (direction) {
-      case "up": {
-        player.row--;
-        break;
+    if (isDirection(direction)) {
+      switch (direction) {
+        case "up": {
+          player.row--;
+          break;
+        }
+        case "right": {
+          player.column++;
+          break;
+        }
+        case "down": {
+          player.row++;
+          break;
+        }
+        case "left": {
+          player.column--;
+          break;
+        }
       }
-      case "right": {
-        player.column++;
-        break;
-      }
-      case "down": {
-        player.row++;
-        break;
-      }
-      case "left": {
-        player.column--;
-        break;
-      }
+      player.row = Math.max(Math.min(ROWS - 1, player.row), 0);
+      player.column = Math.max(Math.min(COLUMNS - 1, player.column), 0);
+      player.direction = direction;
     }
-    player.row = Math.max(Math.min(ROWS - 1, player.row), 0);
-    player.column = Math.max(Math.min(COLUMNS - 1, player.column), 0);
   }
   getMessages() {
     const ids = new Set<string>();

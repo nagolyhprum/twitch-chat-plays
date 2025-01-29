@@ -6,6 +6,14 @@ export interface User {
   source: UserSource;
 }
 
+export type Direction = "up" | "right" | "down" | "left";
+
+const DIRECTIONS = ["up", "right", "down", "left"];
+
+export const isDirection = (
+  input: string | null | undefined
+): input is Direction => !!input && DIRECTIONS.includes(input);
+
 export interface Player {
   id: string;
   name: string;
@@ -16,6 +24,7 @@ export interface Player {
   fill: string;
   character: number;
   source: UserSource;
+  direction: Direction;
 }
 
 export interface LiveStream {

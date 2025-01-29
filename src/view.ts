@@ -10,7 +10,7 @@ import {
   WIDTH,
 } from "./constant";
 import type { Controller } from "./controller";
-import type { Player } from "./types";
+import type { Direction, Player } from "./types";
 
 const characters = new Image();
 characters.src = "/public/RPG_assets.png";
@@ -24,6 +24,13 @@ const sourceMap = {
   youtube: youtubeIcon,
   twitch: twitchIcon,
 } as const;
+
+const directionMap: Record<Direction, number> = {
+  up: 2,
+  right: 1,
+  down: 0,
+  left: 1,
+};
 
 export class View {
   private context: CanvasRenderingContext2D;
@@ -67,7 +74,9 @@ export class View {
     this.controller.getPlayers().forEach((player) => {
       const column = player.character % 2;
       const row = Math.floor(player.character / 2);
-      const sx = 3 * column * TILE_SIZE,
+      const directionOffset =
+        directionMap[player.direction || "down"] || directionMap.down;
+      const sx = 3 * column * TILE_SIZE + directionOffset * TILE_SIZE,
         sy = 3 * row * TILE_SIZE,
         sw = TILE_SIZE,
         sh = TILE_SIZE,
