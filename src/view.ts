@@ -22,6 +22,9 @@ youtubeIcon.src = "/public/youtube.svg";
 const twitchIcon = new Image();
 twitchIcon.src = "/public/twitch.svg";
 
+const coinIcon = new Image();
+coinIcon.src = "/public/coin.png";
+
 const sourceMap = {
   youtube: youtubeIcon,
   twitch: twitchIcon,
@@ -44,6 +47,32 @@ export class View {
     canvas.height = HEIGHT;
     context.imageSmoothingEnabled = false;
     this.context = context;
+  }
+  private drawCoin() {
+    const column = 1;
+    const row = 2;
+    const index = Math.floor(Date.now() / 150) % 8;
+    const sw = coinIcon.width / 8,
+      sh = coinIcon.height,
+      sx = index * sw,
+      sy = 0,
+      dx = CELL_SIZE / 4 + column * CELL_SIZE,
+      dy = -CELL_SIZE / 2 + row * CELL_SIZE,
+      dw = CELL_SIZE / 2,
+      dh = CELL_SIZE / 2;
+    this.context.beginPath();
+    this.context.ellipse(
+      CELL_SIZE / 2 + column * CELL_SIZE,
+      CELL_SIZE / 2 + row * CELL_SIZE,
+      CELL_SIZE / 4,
+      CELL_SIZE / 8,
+      0,
+      0,
+      2 * Math.PI
+    );
+    this.context.fillStyle = "rgba(0, 0, 0, .3)";
+    this.context.fill();
+    this.context.drawImage(coinIcon, sx, sy, sw, sh, dx, dy, dw, dh);
   }
   private drawNames() {
     this.context.font = `${FONT_SIZE}px sans-sarif`;
@@ -190,6 +219,7 @@ export class View {
     this.drawCharacters();
     this.drawNames();
     this.drawMessages();
+    this.drawCoin();
     this.context.restore();
     // this.drawLoader();
   }

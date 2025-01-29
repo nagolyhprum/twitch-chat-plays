@@ -57,10 +57,13 @@ Feel free to check [our documentation](https://docs.astro.build) or jump into ou
 - how chatters as characters
 - when they chat show a speech bubble
 - Saving characters
+- Animate characters
 
 # Todo
 
-- Animate characters
+- Add a floating coin the moves to random tiles
+- Colleting coins increases coin count
+- Coin should have a shadow
 
 Coding a Twitch Chat Plays Game from Scratch
 
@@ -74,3 +77,8 @@ Github:https://github.com/nagolyhprum/twitch-chat-plays
 - Box 2 throw stuff?
 - Fireballs
 - BIGGER WITH MORE MESSAGES
+
+# Assets
+
+- https://opengameart.org/content/rotating-coin
+- https://opengameart.org/content/rpg-character-sprites
