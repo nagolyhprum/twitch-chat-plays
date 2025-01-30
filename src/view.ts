@@ -174,12 +174,7 @@ export class View {
         dw = player.width,
         dh = player.height,
         dx = player.column * CELL_SIZE + CELL_SIZE / 2 - dw / 2 + offset.x,
-        dy =
-          player.row * CELL_SIZE +
-          CELL_SIZE / 2 -
-          dh / 2 +
-          offset.y -
-          offset.elevation;
+        dy = player.row * CELL_SIZE + CELL_SIZE / 2 - dh / 2 + offset.y;
 
       if (directionOffset < 0) {
         this.backContext.save();
@@ -191,7 +186,17 @@ export class View {
       this.backContext.beginPath();
       this.drawShadow(dx + dw / 2, dy + dh - 5);
 
-      this.backContext.drawImage(characters, sx, sy, sw, sh, dx, dy, dw, dh);
+      this.backContext.drawImage(
+        characters,
+        sx,
+        sy,
+        sw,
+        sh,
+        dx,
+        dy - offset.elevation,
+        dw,
+        dh
+      );
 
       if (directionOffset < 0) {
         this.backContext.restore();

@@ -64,11 +64,13 @@ Feel free to check [our documentation](https://docs.astro.build) or jump into ou
 - Make the coin look more floaty
 - Add jump
 - Allow multiple movements in one command
+- Move to bad spots
+- Jumping does not wait
 
 # Todo
 
-- Add a floating coin the moves to random tiles
 - Colleting coins increases coin count
+- Add a floating coin the moves to random tiles
 - Maze
 - Add Keys
 - Add Enemies
@@ -93,6 +95,7 @@ Github:https://github.com/nagolyhprum/twitch-chat-plays
 - Whisper discount codes
 - Turn by turn battle
 - Boost commands
+- Gambling
 
 # Assets
 

@@ -80,7 +80,7 @@ export class Controller {
           this.processedMessages.add(message.id);
         }
       });
-      const diff = Date.now() - player.lastMovedAt;
+      const diff = Date.now() - Math.max(player.lastMovedAt, player.jumpedAt);
       if (diff > ANIMATION_LENGTH && player.commands.length) {
         const command = commandMap[player.commands.shift() ?? ""];
         if (command) {
@@ -120,6 +120,8 @@ export class Controller {
     console.log("move", tokens);
     const direction = tokens[0];
     if (isDirection(direction)) {
+      const row = player.row;
+      const column = player.column;
       switch (direction) {
         case "up": {
           player.row--;
@@ -141,7 +143,9 @@ export class Controller {
       player.row = Math.max(Math.min(ROWS - 1, player.row), 0);
       player.column = Math.max(Math.min(COLUMNS - 1, player.column), 0);
       player.direction = direction;
-      player.lastMovedAt = Date.now();
+      if (player.row !== row || player.column !== column) {
+        player.lastMovedAt = Date.now();
+      }
     } else {
       player.commands = tokens.flatMap((token) => token.split(""));
     }
