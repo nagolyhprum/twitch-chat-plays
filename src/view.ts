@@ -55,6 +55,7 @@ export class View {
     this.context = context;
   }
   private drawCoin() {
+    const hover = Math.sin((2 * Math.PI * Date.now()) / 2500);
     const column = 1;
     const row = 2;
     const index = Math.floor(Date.now() / 150) % 8;
@@ -63,15 +64,15 @@ export class View {
       sx = index * sw,
       sy = 0,
       dx = CELL_SIZE / 4 + column * CELL_SIZE,
-      dy = -CELL_SIZE / 2 + row * CELL_SIZE,
+      dy = -CELL_SIZE / 2 + row * CELL_SIZE + hover * 10,
       dw = CELL_SIZE / 2,
       dh = CELL_SIZE / 2;
     this.context.beginPath();
     this.context.ellipse(
       CELL_SIZE / 2 + column * CELL_SIZE,
-      CELL_SIZE / 2 + row * CELL_SIZE,
-      CELL_SIZE / 4,
-      CELL_SIZE / 8,
+      (3 * CELL_SIZE) / 4 + row * CELL_SIZE,
+      CELL_SIZE / 4 + hover,
+      CELL_SIZE / 8 + hover,
       0,
       0,
       2 * Math.PI
@@ -159,6 +160,19 @@ export class View {
         this.context.scale(-1, 1);
         this.context.translate(-(dx + dw / 2), -(dy + dh / 2));
       }
+
+      this.context.beginPath();
+      this.context.ellipse(
+        dx + dw / 2,
+        dy + dh - 5,
+        CELL_SIZE / 4,
+        CELL_SIZE / 8,
+        0,
+        0,
+        2 * Math.PI
+      );
+      this.context.fillStyle = "rgba(0, 0, 0, .3)";
+      this.context.fill();
 
       this.context.drawImage(characters, sx, sy, sw, sh, dx, dy, dw, dh);
 

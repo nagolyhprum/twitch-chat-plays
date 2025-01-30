@@ -61,10 +61,10 @@ Feel free to check [our documentation](https://docs.astro.build) or jump into ou
 - Coin should have a shadow
 - Make the background look nice
 - Change how chat is tracked
+- Make the coin look more floaty
 
 # Todo
 
-- Make the coin look more floaty
 - Add jump
 - Add a floating coin the moves to random tiles
 - Colleting coins increases coin count

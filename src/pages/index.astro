@@ -3,12 +3,12 @@ import Tokens from "csrf";
 
 const tokens = new Tokens();
 
-const state = tokens.create(process.env.CSRF_SECRET);
+const state = tokens.create(process.env.CSRF_SECRET ?? "");
 
 // TODO : VERIFY CSRF
 
 const twitchParams = new URLSearchParams({
-  client_id: process.env.TWITCH_CLIENT_ID,
+  client_id: process.env.TWITCH_CLIENT_ID ?? "",
   force_verify: "true",
   redirect_uri: "https://localhost:4321?service=twitch",
   response_type: "token",
@@ -17,7 +17,7 @@ const twitchParams = new URLSearchParams({
 });
 
 const youtubeParams = new URLSearchParams({
-  client_id: process.env.YOUTUBE_CLIENT_ID,
+  client_id: process.env.YOUTUBE_CLIENT_ID ?? "",
   redirect_uri: "http://localhost:4321?service=youtube",
   response_type: "token",
   scope: [
@@ -39,6 +39,7 @@ const youtubeParams = new URLSearchParams({
     <h1>Commands</h1>
     <ul>
       <ul>!character move (up | right | down | left)</ul>
+      <ul>!character customize (0-3)</ul>
     </ul>
     <div>
       <a href={`https://id.twitch.tv/oauth2/authorize?${twitchParams}}`}
