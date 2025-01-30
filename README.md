@@ -62,11 +62,11 @@ Feel free to check [our documentation](https://docs.astro.build) or jump into ou
 - Make the background look nice
 - Change how chat is tracked
 - Make the coin look more floaty
+- Add jump
+- Allow multiple movements in one command
 
 # Todo
 
-- Add jump
-- Allow multiple movements in one command
 - Add a floating coin the moves to random tiles
 - Colleting coins increases coin count
 - Maze
@@ -92,6 +92,7 @@ Github:https://github.com/nagolyhprum/twitch-chat-plays
 - race for charity?
 - Whisper discount codes
 - Turn by turn battle
+- Boost commands
 
 # Assets
 

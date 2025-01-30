@@ -1,8 +1,16 @@
-import { CHARACTER_SIZE, COLUMNS, ROWS } from "./constant";
+import { ANIMATION_LENGTH, CHARACTER_SIZE, COLUMNS, ROWS } from "./constant";
 import { isDirection, type Player, type Point, type User } from "./types";
 
 const parseCommand = (input: string): string[] => {
   return input.split(/\s+/).filter((_) => _);
+};
+
+const commandMap: Record<string, string> = {
+  u: "character move up",
+  r: "character move right",
+  d: "character move down",
+  l: "character move left",
+  j: "character jump",
 };
 
 export class Controller {
@@ -21,6 +29,7 @@ export class Controller {
       player.jumpedAt = 0;
       player.width = CHARACTER_SIZE;
       player.height = CHARACTER_SIZE;
+      player.commands = [];
     });
   }
   async save() {
@@ -47,7 +56,7 @@ export class Controller {
   }
   update(users: User[]) {
     users.forEach((user) => {
-      const player = this.players[user.id] || {
+      const player: Player = this.players[user.id] || {
         ...user,
         column: Math.floor(Math.random() * COLUMNS),
         row: Math.floor(Math.random() * ROWS),
@@ -58,6 +67,7 @@ export class Controller {
         direction: "down",
         lastMovedAt: 0,
         jumpedAt: 0,
+        commands: [],
       };
       player.messages = user.messages;
       user.messages.forEach((message) => {
@@ -70,6 +80,13 @@ export class Controller {
           this.processedMessages.add(message.id);
         }
       });
+      const diff = Date.now() - player.lastMovedAt;
+      if (diff > ANIMATION_LENGTH && player.commands.length) {
+        const command = commandMap[player.commands.shift() ?? ""];
+        if (command) {
+          this.runCommand(command, player);
+        }
+      }
       this.players[user.id] = player;
     });
   }
@@ -125,6 +142,8 @@ export class Controller {
       player.column = Math.max(Math.min(COLUMNS - 1, player.column), 0);
       player.direction = direction;
       player.lastMovedAt = Date.now();
+    } else {
+      player.commands = tokens.flatMap((token) => token.split(""));
     }
   }
   getPlayers() {

@@ -29,6 +29,7 @@ export interface Player {
   lastMovedAt: number;
   messages: Message[];
   jumpedAt: number;
+  commands: string[];
 }
 
 export interface LiveStream {
