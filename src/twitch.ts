@@ -1,10 +1,10 @@
-import type { LiveStream, Message, User } from "./types";
+import type { LiveStream, User } from "./types";
 
 const STREAM_ELEMENTS_ID = "100135110";
 
 export class TwitchLiveStream implements LiveStream {
+  private users: Record<string, User> = {};
   private accessToken: string | null;
-  private messages: Message[] = [];
   constructor(private clientId: string) {
     this.accessToken = this.getAccessToken();
     const websocket = new WebSocket("wss://eventsub.wss.twitch.tv/ws");
@@ -34,16 +34,24 @@ export class TwitchLiveStream implements LiveStream {
           }
         );
       } else if (data.metadata.message_type === "notification") {
+        const name = data.payload.event.chatter_user_name;
         const text = data.payload.event.message.text;
         const userId = data.payload.event.chatter_user_id;
         const message_timestamp = data.metadata.message_timestamp;
         const id = data.metadata.message_id;
-        this.messages.push({
+        const user: User = this.users[userId] || {
+          id: userId,
+          name,
+          messages: [],
+          source: "twitch",
+        };
+        user.messages.push({
           id,
           text,
           userId,
           publishedAt: new Date(message_timestamp).getTime(),
         });
+        this.users[userId] = user;
       }
     };
   }
@@ -89,22 +97,8 @@ export class TwitchLiveStream implements LiveStream {
     };
   }
   async getChatters(): Promise<User[]> {
-    const user = await this.getUser();
-    const chatters = await this.getRequest("/chat/chatters", {
-      broadcaster_id: user.id,
-      moderator_id: user.id,
-    });
-    return chatters.data
-      .map(
-        (chatter: any): User => ({
-          id: chatter.user_id,
-          name: chatter.user_name,
-          source: "twitch",
-          messages: this.messages.filter(
-            (message) => message.userId === chatter.user_id
-          ),
-        })
-      )
-      .filter((chatter: any) => chatter.id !== STREAM_ELEMENTS_ID);
+    return Object.values(this.users).filter(
+      (chatter: any) => chatter.id !== STREAM_ELEMENTS_ID
+    );
   }
 }

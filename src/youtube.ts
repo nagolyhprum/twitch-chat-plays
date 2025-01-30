@@ -2,6 +2,8 @@ import type { LiveStream, StreamDetails, User } from "./types";
 
 export class YouTubeLiveStream implements LiveStream {
   private accessToken: string | null;
+  private users: Record<string, User> = {};
+  private lastUpdatedAt = Date.now();
   constructor(private clientId: string) {
     this.accessToken = this.getAccessToken();
   }
@@ -40,42 +42,39 @@ export class YouTubeLiveStream implements LiveStream {
       name: snippet.title,
     };
   }
-  private async getLiveChat(liveChatId: string): Promise<User[]> {
+  private async getLiveChat(liveChatId: string) {
     const json = await this.getRequest("youtube/v3/liveChat/messages", {
       liveChatId: liveChatId,
       part: ["authorDetails", "snippet"].join(","),
     });
-    const ids = new Set<string>();
-    const usersById: Record<string, User> = {};
-    return (
-      json.items
-        ?.map((item: any): User => {
-          const id = item.authorDetails.channelId;
-          const user: User = usersById[id] || {
-            id,
-            name: item.authorDetails.displayName,
-            source: "youtube",
-            messages: [],
-          };
-          user.messages.push({
-            id: item.id,
-            userId: id,
-            text: item.snippet.textMessageDetails.messageText,
-            publishedAt: new Date(item.snippet.publishedAt).getTime(),
-          });
-          usersById[id] = user;
-          return user;
-        })
-        .filter((user: User) => {
-          const has = ids.has(user.id);
-          ids.add(user.id);
-          return !has;
-        }) ?? []
-    );
+    json.items?.forEach((item: any): User => {
+      const id = item.authorDetails.channelId;
+      const user: User = this.users[id] || {
+        id,
+        name: item.authorDetails.displayName,
+        source: "youtube",
+        messages: [],
+      };
+      const message = user.messages.find((message) => message.id === item.id);
+      if (!message) {
+        user.messages.push({
+          id: item.id,
+          userId: id,
+          text: item.snippet.textMessageDetails.messageText,
+          publishedAt: new Date(item.snippet.publishedAt).getTime(),
+        });
+      }
+      this.users[id] = user;
+      return user;
+    });
   }
   async getChatters() {
-    const stream = await this.getLiveBroadcast();
-    const users = await this.getLiveChat(stream.broadcastId);
-    return users.filter((user) => user.id !== stream.userId);
+    const now = Date.now();
+    if (now - this.lastUpdatedAt >= 10_000) {
+      const stream = await this.getLiveBroadcast();
+      await this.getLiveChat(stream.broadcastId);
+      this.lastUpdatedAt = now;
+    }
+    return Object.values(this.users);
   }
 }

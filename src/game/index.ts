@@ -12,7 +12,10 @@ const controller = new Controller();
 await controller.load();
 const view = new View(canvas, controller);
 
-const streams = [youtube, twitch];
+const streams = [
+  // youtube,
+  twitch,
+];
 
 let users: User[] = [];
 
@@ -32,7 +35,7 @@ const update = async () => {
   controller.save();
 };
 
-setInterval(update, 15_000);
+setInterval(update, 1_000);
 
 export const main = async () => {
   requestAnimationFrame(main);

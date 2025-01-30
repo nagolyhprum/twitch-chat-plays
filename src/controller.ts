@@ -197,7 +197,7 @@ export class Controller {
         player.lastMovedAt = now;
       }
     } else {
-      player.commands = tokens.flatMap((token) => token.split(""));
+      player.commands.push(...tokens.flatMap((token) => token.split("")));
     }
   }
   getPlayers(now: number) {

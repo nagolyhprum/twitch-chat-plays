@@ -69,12 +69,12 @@ Feel free to check [our documentation](https://docs.astro.build) or jump into ou
 - Colleting coins increases coin count
 - Add a floating coin the moves to random tiles
 - Animate coin out
+- Does not keep commands queued
+- Make it more responsive - instant feedback
+- Show coin count
 
 # Todo
 
-- Does not keep commands queued
-- Make it more responsive - instant feedback
-- Show recieved comms
 - Maze
 - Add Keys
 - Add Enemies
@@ -102,6 +102,8 @@ Github:https://github.com/nagolyhprum/twitch-chat-plays
 - Turn by turn battle
 - Boost commands
 - Gambling
+- Sleep
+- More celebration
 
 # Assets
 

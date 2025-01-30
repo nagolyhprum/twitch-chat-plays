@@ -183,17 +183,14 @@ export class View {
         dh = player.height,
         dx = player.column * CELL_SIZE + CELL_SIZE / 2 - dw / 2 + offset.x,
         dy = player.row * CELL_SIZE + CELL_SIZE / 2 - dh / 2 + offset.y;
-
       if (directionOffset < 0) {
         this.backContext.save();
         this.backContext.translate(dx + dw / 2, dy + dh / 2);
         this.backContext.scale(-1, 1);
         this.backContext.translate(-(dx + dw / 2), -(dy + dh / 2));
       }
-
       this.backContext.beginPath();
       this.drawShadow(dx + dw / 2, dy + dh - 5);
-
       this.backContext.drawImage(
         characters,
         sx,
@@ -205,19 +202,38 @@ export class View {
         dw,
         dh
       );
-
       if (directionOffset < 0) {
         this.backContext.restore();
       }
-
+      const padding = 4;
       const iconSize = FONT_SIZE;
       const sourceIcon = sourceMap[player.source];
       this.backContext.drawImage(
         sourceIcon,
-        dx + dw - 5,
+        dx + dw - padding,
         dy,
         iconSize,
         iconSize
+      );
+      this.backContext.drawImage(
+        coinIcon,
+        0,
+        0,
+        coinIcon.width / 8,
+        coinIcon.height,
+        dx + dw - padding,
+        dy + iconSize + padding,
+        iconSize,
+        iconSize
+      );
+      this.backContext.fillStyle = "black";
+      this.backContext.font = `${FONT_SIZE}px sans-serif`;
+      this.backContext.textAlign = "center";
+      this.backContext.textBaseline = "top";
+      this.backContext.fillText(
+        `${player.coins}`,
+        dx + dw + iconSize / 2 - padding,
+        dy + iconSize + iconSize + padding + padding / 2
       );
     });
   }
