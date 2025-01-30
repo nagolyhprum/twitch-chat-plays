@@ -47,12 +47,25 @@ const animationMap = [0, 1, 0, 2];
 
 export class View {
   private context: CanvasRenderingContext2D;
+  private backContext: CanvasRenderingContext2D;
   constructor(canvas: HTMLCanvasElement, private controller: Controller) {
     const context = canvas.getContext("2d")!;
     canvas.width = WIDTH;
     canvas.height = HEIGHT;
     context.imageSmoothingEnabled = false;
     this.context = context;
+
+    const backCanvas = document.createElement("canvas");
+    this.backContext = backCanvas.getContext("2d")!;
+    backCanvas.width = WIDTH;
+    backCanvas.height = HEIGHT;
+    this.backContext.imageSmoothingEnabled = false;
+  }
+  private drawShadow(x: number, y: number) {
+    this.context.fillStyle = "rgba(0, 0, 0, .3)";
+    this.context.beginPath();
+    this.context.ellipse(x, y, CELL_SIZE / 4, CELL_SIZE / 8, 0, 0, 2 * Math.PI);
+    this.context.fill();
   }
   private drawCoin() {
     const hover = Math.sin((2 * Math.PI * Date.now()) / 2500);
@@ -67,28 +80,21 @@ export class View {
       dy = -CELL_SIZE / 2 + row * CELL_SIZE + hover * 10,
       dw = CELL_SIZE / 2,
       dh = CELL_SIZE / 2;
-    this.context.beginPath();
-    this.context.ellipse(
+    this.backContext.beginPath();
+    this.drawShadow(
       CELL_SIZE / 2 + column * CELL_SIZE,
-      (3 * CELL_SIZE) / 4 + row * CELL_SIZE,
-      CELL_SIZE / 4 + hover,
-      CELL_SIZE / 8 + hover,
-      0,
-      0,
-      2 * Math.PI
+      (3 * CELL_SIZE) / 4 + row * CELL_SIZE
     );
-    this.context.fillStyle = "rgba(0, 0, 0, .3)";
-    this.context.fill();
-    this.context.drawImage(coinIcon, sx, sy, sw, sh, dx, dy, dw, dh);
+    this.backContext.drawImage(coinIcon, sx, sy, sw, sh, dx, dy, dw, dh);
   }
   private drawNames() {
-    this.context.font = `${FONT_SIZE}px sans-sarif`;
-    this.context.textBaseline = "bottom";
-    this.context.textAlign = "center";
+    this.backContext.font = `${FONT_SIZE}px sans-sarif`;
+    this.backContext.textBaseline = "bottom";
+    this.backContext.textAlign = "center";
     this.controller.getPlayers().forEach((player) => {
       const offset = this.getOffset(player);
-      this.context.fillStyle = player.fill;
-      this.context.fillText(
+      this.backContext.fillStyle = player.fill;
+      this.backContext.fillText(
         player.name,
         player.column * CELL_SIZE + CELL_SIZE / 2 + offset.x,
         player.row * CELL_SIZE + CELL_SIZE + offset.y
@@ -111,7 +117,10 @@ export class View {
     this.context.stroke();
   }
   private getAnimtionIndex(player: Player) {
-    const offset = Date.now() - (player.lastMovedAt || 0);
+    if (Date.now() - player.jumpedAt < ANIMATION_LENGTH) {
+      return 1;
+    }
+    const offset = Date.now() - player.lastMovedAt;
     if (offset > ANIMATION_LENGTH) {
       return 0;
     }
@@ -120,21 +129,34 @@ export class View {
     );
   }
   private getOffset(player: Player) {
-    const offset = Date.now() - (player.lastMovedAt || 0);
-    if (offset > ANIMATION_LENGTH) {
+    const jumpedAt = Date.now() - player.jumpedAt;
+    if (jumpedAt < ANIMATION_LENGTH) {
+      const percent = Math.sin(
+        (Math.PI * (ANIMATION_LENGTH - jumpedAt)) / ANIMATION_LENGTH
+      );
       return {
         x: 0,
         y: 0,
+        elevation: percent * CELL_SIZE,
       };
     }
-    const percent = (ANIMATION_LENGTH - offset) / ANIMATION_LENGTH;
-    const up = player.direction === "up" ? CELL_SIZE : 0;
-    const right = player.direction === "right" ? -CELL_SIZE : 0;
-    const down = player.direction === "down" ? -CELL_SIZE : 0;
-    const left = player.direction === "left" ? CELL_SIZE : 0;
+    const movedAt = Date.now() - player.lastMovedAt;
+    if (movedAt < ANIMATION_LENGTH) {
+      const percent = (ANIMATION_LENGTH - movedAt) / ANIMATION_LENGTH;
+      const up = player.direction === "up" ? CELL_SIZE : 0;
+      const right = player.direction === "right" ? -CELL_SIZE : 0;
+      const down = player.direction === "down" ? -CELL_SIZE : 0;
+      const left = player.direction === "left" ? CELL_SIZE : 0;
+      return {
+        x: (left + right) * percent,
+        y: (up + down) * percent,
+        elevation: 0,
+      };
+    }
     return {
-      x: (left + right) * percent,
-      y: (up + down) * percent,
+      x: 0,
+      y: 0,
+      elevation: 0,
     };
   }
   private drawCharacters() {
@@ -152,56 +174,59 @@ export class View {
         dw = player.width,
         dh = player.height,
         dx = player.column * CELL_SIZE + CELL_SIZE / 2 - dw / 2 + offset.x,
-        dy = player.row * CELL_SIZE + CELL_SIZE / 2 - dh / 2 + offset.y;
+        dy =
+          player.row * CELL_SIZE +
+          CELL_SIZE / 2 -
+          dh / 2 +
+          offset.y -
+          offset.elevation;
 
       if (directionOffset < 0) {
-        this.context.save();
-        this.context.translate(dx + dw / 2, dy + dh / 2);
-        this.context.scale(-1, 1);
-        this.context.translate(-(dx + dw / 2), -(dy + dh / 2));
+        this.backContext.save();
+        this.backContext.translate(dx + dw / 2, dy + dh / 2);
+        this.backContext.scale(-1, 1);
+        this.backContext.translate(-(dx + dw / 2), -(dy + dh / 2));
       }
 
-      this.context.beginPath();
-      this.context.ellipse(
-        dx + dw / 2,
-        dy + dh - 5,
-        CELL_SIZE / 4,
-        CELL_SIZE / 8,
-        0,
-        0,
-        2 * Math.PI
-      );
-      this.context.fillStyle = "rgba(0, 0, 0, .3)";
-      this.context.fill();
+      this.backContext.beginPath();
+      this.drawShadow(dx + dw / 2, dy + dh - 5);
 
-      this.context.drawImage(characters, sx, sy, sw, sh, dx, dy, dw, dh);
+      this.backContext.drawImage(characters, sx, sy, sw, sh, dx, dy, dw, dh);
 
       if (directionOffset < 0) {
-        this.context.restore();
+        this.backContext.restore();
       }
 
       const iconSize = FONT_SIZE;
       const sourceIcon = sourceMap[player.source];
-      this.context.drawImage(sourceIcon, dx + dw - 5, dy, iconSize, iconSize);
+      this.backContext.drawImage(
+        sourceIcon,
+        dx + dw - 5,
+        dy,
+        iconSize,
+        iconSize
+      );
     });
   }
   private clear() {
     this.context.clearRect(0, 0, WIDTH, HEIGHT);
+    this.backContext.clearRect(0, 0, WIDTH, HEIGHT);
   }
   private drawMessages() {
-    this.context.fillStyle = "black";
-    this.context.textAlign = "center";
-    this.context.textBaseline = "top";
-    this.context.font = `${FONT_SIZE}px sans-serif`;
+    this.backContext.fillStyle = "black";
+    this.backContext.textAlign = "center";
+    this.backContext.textBaseline = "top";
+    this.backContext.font = `${FONT_SIZE}px sans-serif`;
     this.controller.getPlayers().forEach((player) => {
-      player.messages.forEach((message) => {
+      const message = player.messages[0];
+      if (message) {
         const offset = this.getOffset(player);
-        this.context.fillText(
+        this.backContext.fillText(
           message.text,
           player.column * CELL_SIZE + CELL_SIZE / 2 + offset.x,
           player.row * CELL_SIZE + offset.y
         );
-      });
+      }
     });
   }
   private drawSky() {
@@ -271,6 +296,8 @@ export class View {
   draw() {
     this.clear();
     this.drawSky();
+    this.backContext.save();
+    this.backContext.translate(CELL_OFFSET_X, CELL_OFFSET_y);
     this.context.save();
     this.context.translate(CELL_OFFSET_X, CELL_OFFSET_y);
     this.drawIsland();
@@ -279,7 +306,9 @@ export class View {
     this.drawNames();
     this.drawMessages();
     this.drawCoin();
+    this.backContext.restore();
     this.context.restore();
+    this.context.drawImage(this.backContext.canvas, 0, 0);
     // this.drawLoader();
   }
 }

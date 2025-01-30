@@ -28,6 +28,7 @@ export interface Player {
   direction: Direction;
   lastMovedAt: number;
   messages: Message[];
+  jumpedAt: number;
 }
 
 export interface LiveStream {
@@ -45,4 +46,9 @@ export interface Message {
   text: string;
   userId: string;
   publishedAt: number;
+}
+
+export interface Point {
+  x: number;
+  y: number;
 }

@@ -66,9 +66,12 @@ Feel free to check [our documentation](https://docs.astro.build) or jump into ou
 # Todo
 
 - Add jump
+- Allow multiple movements in one command
 - Add a floating coin the moves to random tiles
 - Colleting coins increases coin count
 - Maze
+- Add Keys
+- Add Enemies
 
 Coding a Twitch Chat Plays Game from Scratch
 
@@ -82,6 +85,13 @@ Github:https://github.com/nagolyhprum/twitch-chat-plays
 - Box 2 throw stuff?
 - Fireballs
 - BIGGER WITH MORE MESSAGES
+- survival aspects
+- teleport?
+- track daily viewing - streaks
+- players stuck together
+- race for charity?
+- Whisper discount codes
+- Turn by turn battle
 
 # Assets
 

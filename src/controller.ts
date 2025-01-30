@@ -1,5 +1,5 @@
 import { CHARACTER_SIZE, COLUMNS, ROWS } from "./constant";
-import { isDirection, type Player, type User } from "./types";
+import { isDirection, type Player, type Point, type User } from "./types";
 
 const parseCommand = (input: string): string[] => {
   return input.split(/\s+/).filter((_) => _);
@@ -18,6 +18,9 @@ export class Controller {
     this.processedMessages = new Set(json.data.processedMessages);
     Object.values(this.players).forEach((player) => {
       player.messages = [];
+      player.jumpedAt = 0;
+      player.width = CHARACTER_SIZE;
+      player.height = CHARACTER_SIZE;
     });
   }
   async save() {
@@ -54,6 +57,7 @@ export class Controller {
         character: Math.floor(Math.random() * 4),
         direction: "down",
         lastMovedAt: 0,
+        jumpedAt: 0,
       };
       player.messages = user.messages;
       user.messages.forEach((message) => {
@@ -83,6 +87,9 @@ export class Controller {
     }
     if (tokens[0] === "customize") {
       this.runCusomizeCommand(tokens.slice(1), player);
+    }
+    if (tokens[0] === "jump") {
+      player.jumpedAt = Date.now();
     }
   }
   runCusomizeCommand(tokens: string[], player: Player) {
@@ -121,12 +128,14 @@ export class Controller {
     }
   }
   getPlayers() {
-    const cutoff = Date.now() - 1000 * 60 * 10;
-    return Object.values(this.players).map((user) => ({
-      ...user,
-      messages: user.messages.filter(
-        (message) => message.text[0] !== "!" && message.publishedAt > cutoff
-      ),
-    }));
+    const cutoff = Date.now() - 1000 * 60 * 5;
+    return Object.values(this.players)
+      .map((user) => ({
+        ...user,
+        messages: user.messages.filter(
+          (message) => message.text[0] !== "!" && message.publishedAt > cutoff
+        ),
+      }))
+      .sort((a, b) => a.jumpedAt - b.jumpedAt);
   }
 }
