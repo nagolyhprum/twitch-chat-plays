@@ -14,22 +14,18 @@ import {
 import type { Controller } from "./controller";
 import type { Direction, Player } from "./types";
 
-const tiles = new Image();
-tiles.src = "/public/tiles.png";
+const image = (src: string) => {
+  const image = new Image();
+  image.src = src;
+  return image;
+};
 
-const sky = new Image();
-sky.src = "/public/sky.png";
-
-const characters = new Image();
-characters.src = "/public/characters.png";
-
-const youtubeIcon = new Image();
-youtubeIcon.src = "/public/youtube.svg";
-const twitchIcon = new Image();
-twitchIcon.src = "/public/twitch.svg";
-
-const coinIcon = new Image();
-coinIcon.src = "/public/coin.png";
+const tiles = image("/public/tiles.png");
+const sky = image("/public/sky.png");
+const characters = image("/public/characters.png");
+const youtubeIcon = image("/public/youtube.svg");
+const twitchIcon = image("/public/twitch.svg");
+const coinIcon = image("/public/coin.png");
 
 const sourceMap = {
   youtube: youtubeIcon,
@@ -67,11 +63,11 @@ export class View {
     this.context.ellipse(x, y, CELL_SIZE / 4, CELL_SIZE / 8, 0, 0, 2 * Math.PI);
     this.context.fill();
   }
-  private drawCoin() {
-    const hover = Math.sin((2 * Math.PI * Date.now()) / 2500);
-    const column = 1;
-    const row = 2;
-    const index = Math.floor(Date.now() / 150) % 8;
+  private drawCoin(now: number) {
+    const { column, row, collectedAt } = this.controller.getCoin();
+    const percent = collectedAt ? (now - collectedAt) / ANIMATION_LENGTH : 0;
+    const hover = Math.sin((2 * Math.PI * now) / 2500);
+    const index = Math.floor(now / 150) % 8;
     const sw = coinIcon.width / 8,
       sh = coinIcon.height,
       sx = index * sw,
@@ -80,19 +76,31 @@ export class View {
       dy = -CELL_SIZE / 2 + row * CELL_SIZE + hover * 10,
       dw = CELL_SIZE / 2,
       dh = CELL_SIZE / 2;
+    this.backContext.globalAlpha = 1 - percent;
     this.backContext.beginPath();
     this.drawShadow(
       CELL_SIZE / 2 + column * CELL_SIZE,
       (3 * CELL_SIZE) / 4 + row * CELL_SIZE
     );
-    this.backContext.drawImage(coinIcon, sx, sy, sw, sh, dx, dy, dw, dh);
+    this.backContext.drawImage(
+      coinIcon,
+      sx,
+      sy,
+      sw,
+      sh,
+      dx,
+      dy - (percent * CELL_SIZE) / 2,
+      dw,
+      dh
+    );
+    this.backContext.globalAlpha = 1;
   }
-  private drawNames() {
+  private drawNames(now: number) {
     this.backContext.font = `${FONT_SIZE}px sans-sarif`;
     this.backContext.textBaseline = "bottom";
     this.backContext.textAlign = "center";
-    this.controller.getPlayers().forEach((player) => {
-      const offset = this.getOffset(player);
+    this.controller.getPlayers(now).forEach((player) => {
+      const offset = this.getOffset(now, player);
       this.backContext.fillStyle = player.fill;
       this.backContext.fillText(
         player.name,
@@ -116,11 +124,11 @@ export class View {
     this.context.strokeStyle = "rgba(0, 0, 0, .3)";
     this.context.stroke();
   }
-  private getAnimtionIndex(player: Player) {
-    if (Date.now() - player.jumpedAt < ANIMATION_LENGTH) {
+  private getAnimtionIndex(now: number, player: Player) {
+    if (now - player.jumpedAt < ANIMATION_LENGTH) {
       return 1;
     }
-    const offset = Date.now() - player.lastMovedAt;
+    const offset = now - player.lastMovedAt;
     if (offset > ANIMATION_LENGTH) {
       return 0;
     }
@@ -128,8 +136,8 @@ export class View {
       animationMap[Math.floor(offset / WALK_SPEED) % animationMap.length] ?? 0
     );
   }
-  private getOffset(player: Player) {
-    const jumpedAt = Date.now() - player.jumpedAt;
+  private getOffset(now: number, player: Player) {
+    const jumpedAt = now - player.jumpedAt;
     if (jumpedAt < ANIMATION_LENGTH) {
       const percent = Math.sin(
         (Math.PI * (ANIMATION_LENGTH - jumpedAt)) / ANIMATION_LENGTH
@@ -140,7 +148,7 @@ export class View {
         elevation: percent * CELL_SIZE,
       };
     }
-    const movedAt = Date.now() - player.lastMovedAt;
+    const movedAt = now - player.lastMovedAt;
     if (movedAt < ANIMATION_LENGTH) {
       const percent = (ANIMATION_LENGTH - movedAt) / ANIMATION_LENGTH;
       const up = player.direction === "up" ? CELL_SIZE : 0;
@@ -159,14 +167,14 @@ export class View {
       elevation: 0,
     };
   }
-  private drawCharacters() {
-    this.controller.getPlayers().forEach((player) => {
+  private drawCharacters(now: number) {
+    this.controller.getPlayers(now).forEach((player) => {
       const column = player.character % 2;
       const row = Math.floor(player.character / 2);
       const directionOffset =
         directionMap[player.direction || "down"] || directionMap.down;
-      const animationIndex = this.getAnimtionIndex(player);
-      const offset = this.getOffset(player);
+      const animationIndex = this.getAnimtionIndex(now, player);
+      const offset = this.getOffset(now, player);
       const sx = 3 * column * TILE_SIZE + Math.abs(directionOffset * TILE_SIZE),
         sy = 3 * row * TILE_SIZE + TILE_SIZE * animationIndex,
         sw = TILE_SIZE,
@@ -217,15 +225,15 @@ export class View {
     this.context.clearRect(0, 0, WIDTH, HEIGHT);
     this.backContext.clearRect(0, 0, WIDTH, HEIGHT);
   }
-  private drawMessages() {
+  private drawMessages(now: number) {
     this.backContext.fillStyle = "black";
     this.backContext.textAlign = "center";
     this.backContext.textBaseline = "top";
     this.backContext.font = `${FONT_SIZE}px sans-serif`;
-    this.controller.getPlayers().forEach((player) => {
+    this.controller.getPlayers(now).forEach((player) => {
       const message = player.messages[0];
       if (message) {
-        const offset = this.getOffset(player);
+        const offset = this.getOffset(now, player);
         this.backContext.fillText(
           message.text,
           player.column * CELL_SIZE + CELL_SIZE / 2 + offset.x,
@@ -234,11 +242,10 @@ export class View {
       }
     });
   }
-  private drawSky() {
+  private drawSky(now: number) {
     const pattern = this.context.createPattern(sky, "repeat")!;
     const width = sky.width;
     const height = sky.height;
-    const now = Date.now();
     const timing = 15_000;
     const xPercent = (Math.sin((2 * Math.PI * now) / timing) + 1) / 2;
     const yPercent = (Math.cos((2 * Math.PI * now) / timing) + 1) / 2;
@@ -252,8 +259,8 @@ export class View {
     this.context.fillRect(0, 0, width, height);
     this.context.restore();
   }
-  private drawLoader() {
-    const theta = ((2 * Math.PI * Date.now()) / 1000) % (2 * Math.PI);
+  private drawLoader(now: number) {
+    const theta = ((2 * Math.PI * now) / 1000) % (2 * Math.PI);
     this.context.strokeStyle = "black";
     this.context.beginPath();
     const radius = 25;
@@ -298,22 +305,22 @@ export class View {
       dh = CELL_SIZE;
     this.context.drawImage(tiles, sx, sy, sw, sh, dx, dy, dw, dh);
   }
-  draw() {
+  draw(now: number) {
     this.clear();
-    this.drawSky();
+    this.drawSky(now);
     this.backContext.save();
     this.backContext.translate(CELL_OFFSET_X, CELL_OFFSET_y);
     this.context.save();
     this.context.translate(CELL_OFFSET_X, CELL_OFFSET_y);
     this.drawIsland();
     this.drawGrid();
-    this.drawCharacters();
-    this.drawNames();
-    this.drawMessages();
-    this.drawCoin();
+    this.drawCharacters(now);
+    this.drawNames(now);
+    this.drawMessages(now);
+    this.drawCoin(now);
     this.backContext.restore();
     this.context.restore();
     this.context.drawImage(this.backContext.canvas, 0, 0);
-    // this.drawLoader();
+    // this.drawLoader(now);
   }
 }

@@ -1,5 +1,18 @@
 import { ANIMATION_LENGTH, CHARACTER_SIZE, COLUMNS, ROWS } from "./constant";
-import { isDirection, type Player, type Point, type User } from "./types";
+import { isDirection, type Coin, type Player, type User } from "./types";
+
+const audio = (src: string) => {
+  return new Audio(src);
+};
+const metalCoins = Array.from({ length: 5 }).map((_, index) =>
+  audio(`metal-coin-${index + 1}.wav`)
+);
+const electronicCoin = audio("electronic-coin.wav");
+
+const play = (index: number) => {
+  electronicCoin.play();
+  metalCoins[index]?.play();
+};
 
 const parseCommand = (input: string): string[] => {
   return input.split(/\s+/).filter((_) => _);
@@ -14,10 +27,24 @@ const commandMap: Record<string, string> = {
 };
 
 export class Controller {
+  private coin: Coin;
   private players: Record<string, Player>;
   private processedMessages = new Set<string>();
   constructor() {
     this.players = {};
+    this.coin = this.moveCoin();
+  }
+  private moveCoin() {
+    const coin: Coin = {
+      collectedAt: 0,
+      column: Math.floor(Math.random() * COLUMNS),
+      row: Math.floor(Math.random() * ROWS),
+    };
+    this.coin = coin;
+    return coin;
+  }
+  getCoin() {
+    return this.coin;
   }
   async load() {
     const response = await fetch("/users");
@@ -30,6 +57,7 @@ export class Controller {
       player.width = CHARACTER_SIZE;
       player.height = CHARACTER_SIZE;
       player.commands = [];
+      player.coins = 0;
     });
   }
   async save() {
@@ -54,7 +82,7 @@ export class Controller {
     const b = this.getRandomColorComponent();
     return `rgb(${r}, ${g}, ${b})`;
   }
-  update(users: User[]) {
+  update(now: number, users: User[]) {
     users.forEach((user) => {
       const player: Player = this.players[user.id] || {
         ...user,
@@ -68,6 +96,7 @@ export class Controller {
         lastMovedAt: 0,
         jumpedAt: 0,
         commands: [],
+        coins: 0,
       };
       player.messages = user.messages;
       user.messages.forEach((message) => {
@@ -76,47 +105,62 @@ export class Controller {
           message.text[0] === "!" &&
           !this.processedMessages.has(message.id)
         ) {
-          this.runCommand(message.text.slice(1), player);
+          this.runCommand(now, message.text.slice(1), player);
           this.processedMessages.add(message.id);
         }
       });
-      const diff = Date.now() - Math.max(player.lastMovedAt, player.jumpedAt);
+      const diff = now - Math.max(player.lastMovedAt, player.jumpedAt);
       if (diff > ANIMATION_LENGTH && player.commands.length) {
         const command = commandMap[player.commands.shift() ?? ""];
         if (command) {
-          this.runCommand(command, player);
+          this.runCommand(now, command, player);
         }
       }
       this.players[user.id] = player;
     });
+    if (this.coin.collectedAt) {
+      const diff = now - this.coin.collectedAt;
+      if (diff > ANIMATION_LENGTH) {
+        this.moveCoin();
+      }
+    }
   }
-  runCommand(command: string, player: Player) {
+  private runCommand(now: number, command: string, player: Player) {
     console.log("command", command);
     const tokens = parseCommand(command);
     if (tokens[0] === "character") {
-      this.runCharacterCommand(tokens.slice(1), player);
+      this.runCharacterCommand(now, tokens.slice(1), player);
     }
   }
-  runCharacterCommand(tokens: string[], player: Player) {
+  private runCharacterCommand(now: number, tokens: string[], player: Player) {
     console.log("character", tokens);
     if (tokens[0] === "move") {
-      this.runMoveCommand(tokens.slice(1), player);
+      this.runMoveCommand(now, tokens.slice(1), player);
     }
     if (tokens[0] === "customize") {
       this.runCusomizeCommand(tokens.slice(1), player);
     }
     if (tokens[0] === "jump") {
-      player.jumpedAt = Date.now();
+      player.jumpedAt = now;
+      if (
+        player.row === this.coin.row &&
+        player.column === this.coin.column &&
+        this.coin.collectedAt === 0
+      ) {
+        this.coin.collectedAt = now;
+        player.coins++;
+        play(0);
+      }
     }
   }
-  runCusomizeCommand(tokens: string[], player: Player) {
+  private runCusomizeCommand(tokens: string[], player: Player) {
     console.log("customize", tokens);
     const index = parseInt(tokens[0] ?? "");
     if (!isNaN(index)) {
       player.character = index % 4;
     }
   }
-  runMoveCommand(tokens: string[], player: Player) {
+  private runMoveCommand(now: number, tokens: string[], player: Player) {
     console.log("move", tokens);
     const direction = tokens[0];
     if (isDirection(direction)) {
@@ -144,14 +188,14 @@ export class Controller {
       player.column = Math.max(Math.min(COLUMNS - 1, player.column), 0);
       player.direction = direction;
       if (player.row !== row || player.column !== column) {
-        player.lastMovedAt = Date.now();
+        player.lastMovedAt = now;
       }
     } else {
       player.commands = tokens.flatMap((token) => token.split(""));
     }
   }
-  getPlayers() {
-    const cutoff = Date.now() - 1000 * 60 * 5;
+  getPlayers(now: number) {
+    const cutoff = now - 1000 * 60 * 5;
     return Object.values(this.players)
       .map((user) => ({
         ...user,

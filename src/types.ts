@@ -30,6 +30,7 @@ export interface Player {
   messages: Message[];
   jumpedAt: number;
   commands: string[];
+  coins: number;
 }
 
 export interface LiveStream {
@@ -52,4 +53,10 @@ export interface Message {
 export interface Point {
   x: number;
   y: number;
+}
+
+export interface Coin {
+  row: number;
+  column: number;
+  collectedAt: number;
 }

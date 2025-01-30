@@ -66,11 +66,15 @@ Feel free to check [our documentation](https://docs.astro.build) or jump into ou
 - Allow multiple movements in one command
 - Move to bad spots
 - Jumping does not wait
+- Colleting coins increases coin count
+- Add a floating coin the moves to random tiles
+- Animate coin out
 
 # Todo
 
-- Colleting coins increases coin count
-- Add a floating coin the moves to random tiles
+- Does not keep commands queued
+- Make it more responsive - instant feedback
+- Show recieved comms
 - Maze
 - Add Keys
 - Add Enemies
@@ -83,6 +87,8 @@ Github:https://github.com/nagolyhprum/twitch-chat-plays
 
 # Ideas
 
+- Add traps
+- Make it pay to win
 - Mortal Combat
 - Box 2 throw stuff?
 - Fireballs
@@ -103,3 +109,4 @@ Github:https://github.com/nagolyhprum/twitch-chat-plays
 - https://opengameart.org/content/rpg-character-sprites
 - https://opengameart.org/content/seamless-sky-backgrounds
 - https://opengameart.org/content/floating-islands-0
+- https://opengameart.org/content/plingy-coin

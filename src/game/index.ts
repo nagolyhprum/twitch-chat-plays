@@ -18,6 +18,7 @@ let users: User[] = [];
 
 const update = async () => {
   console.log("update");
+  const now = Date.now();
   const tempUsers: User[] = [];
   try {
     await Promise.all(
@@ -27,7 +28,7 @@ const update = async () => {
     );
   } catch (e) {}
   users = tempUsers;
-  controller.update(users);
+  controller.update(now, users);
   controller.save();
 };
 
@@ -35,8 +36,9 @@ setInterval(update, 15_000);
 
 export const main = async () => {
   requestAnimationFrame(main);
-  controller.update(users);
-  view.draw();
+  const now = Date.now();
+  controller.update(now, users);
+  view.draw(now);
 };
 
 main();
