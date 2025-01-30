@@ -27,6 +27,8 @@ const characters = image("/public/characters.png");
 const youtubeIcon = image("/public/youtube.svg");
 const twitchIcon = image("/public/twitch.svg");
 const coinIcon = image("/public/coin.png");
+const horizontalBarbs = image("/public/horizontal-barbs.png");
+const verticalBarbs = image("/public/vertical-barbs.png");
 
 const sourceMap = {
   youtube: youtubeIcon,
@@ -168,7 +170,7 @@ export class View {
       elevation: 0,
     };
   }
-  private drawPoles() {
+  private drawFence() {
     for (let column = 0; column < COLUMNS - 1; column++) {
       for (let row = 0; row < ROWS - 1; row++) {
         const scale = 1.5;
@@ -181,6 +183,24 @@ export class View {
           width,
           height
         );
+        if (column < COLUMNS - 2) {
+          this.backContext.drawImage(
+            horizontalBarbs,
+            column * CELL_SIZE + CELL_SIZE + width / 2,
+            row * CELL_SIZE + CELL_SIZE - (3 * height) / 4,
+            CELL_SIZE,
+            CELL_SIZE / 2
+          );
+        }
+        if (row < ROWS - 2) {
+          this.backContext.drawImage(
+            verticalBarbs,
+            column * CELL_SIZE + CELL_SIZE - verticalBarbs.width / 2,
+            row * CELL_SIZE + CELL_SIZE - (3 * height) / 4,
+            5,
+            CELL_SIZE
+          );
+        }
       }
     }
   }
@@ -348,7 +368,7 @@ export class View {
     this.drawIsland();
     this.drawGrid();
     this.drawCharacters(now);
-    this.drawPoles();
+    this.drawFence();
     this.drawNames(now);
     this.drawMessages(now);
     this.drawCoin(now);
