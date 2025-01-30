@@ -4,6 +4,7 @@ export interface User {
   id: string;
   name: string;
   source: UserSource;
+  messages: Message[];
 }
 
 export type Direction = "up" | "right" | "down" | "left";
@@ -26,11 +27,11 @@ export interface Player {
   source: UserSource;
   direction: Direction;
   lastMovedAt: number;
+  messages: Message[];
 }
 
 export interface LiveStream {
   getChatters(): Promise<User[]>;
-  getMessages(): Promise<Message[]>;
 }
 
 export interface StreamDetails {
@@ -44,8 +45,4 @@ export interface Message {
   text: string;
   userId: string;
   publishedAt: number;
-}
-
-export interface UserWithMessages extends User {
-  messages: Message[];
 }

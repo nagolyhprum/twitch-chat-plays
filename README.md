@@ -60,15 +60,15 @@ Feel free to check [our documentation](https://docs.astro.build) or jump into ou
 - Animate characters
 - Coin should have a shadow
 - Make the background look nice
+- Change how chat is tracked
 
 # Todo
 
 - Make the coin look more floaty
-- Chat how chat is tracked
 - Add jump
 - Add a floating coin the moves to random tiles
-- Maze
 - Colleting coins increases coin count
+- Maze
 
 Coding a Twitch Chat Plays Game from Scratch
 

@@ -179,22 +179,15 @@ export class View {
     this.context.textAlign = "center";
     this.context.textBaseline = "top";
     this.context.font = `${FONT_SIZE}px sans-serif`;
-    const playersById = this.controller
-      .getPlayers()
-      .reduce((playersById, player) => {
-        playersById[player.id] = player;
-        return playersById;
-      }, {} as Record<string, Player>);
-    this.controller.getMessages().forEach((message) => {
-      const player = playersById[message.userId];
-      if (player) {
+    this.controller.getPlayers().forEach((player) => {
+      player.messages.forEach((message) => {
         const offset = this.getOffset(player);
         this.context.fillText(
           message.text,
           player.column * CELL_SIZE + CELL_SIZE / 2 + offset.x,
           player.row * CELL_SIZE + offset.y
         );
-      }
+      });
     });
   }
   private drawSky() {

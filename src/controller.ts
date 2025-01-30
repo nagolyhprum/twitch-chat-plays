@@ -1,5 +1,5 @@
 import { CHARACTER_SIZE, COLUMNS, ROWS } from "./constant";
-import { isDirection, type Message, type Player, type User } from "./types";
+import { isDirection, type Player, type User } from "./types";
 
 const parseCommand = (input: string): string[] => {
   return input.split(/\s+/).filter((_) => _);
@@ -7,17 +7,18 @@ const parseCommand = (input: string): string[] => {
 
 export class Controller {
   private players: Record<string, Player>;
-  private messages: Message[];
   private processedMessages = new Set<string>();
   constructor() {
     this.players = {};
-    this.messages = [];
   }
   async load() {
     const response = await fetch("/users");
     const json = await response.json();
     this.players = json.data.players;
     this.processedMessages = new Set(json.data.processedMessages);
+    Object.values(this.players).forEach((player) => {
+      player.messages = [];
+    });
   }
   async save() {
     const response = await fetch("/users", {
@@ -41,7 +42,7 @@ export class Controller {
     const b = this.getRandomColorComponent();
     return `rgb(${r}, ${g}, ${b})`;
   }
-  update(users: User[], messages: Message[]) {
+  update(users: User[]) {
     users.forEach((user) => {
       const player = this.players[user.id] || {
         ...user,
@@ -54,20 +55,19 @@ export class Controller {
         direction: "down",
         lastMovedAt: 0,
       };
+      player.messages = user.messages;
+      user.messages.forEach((message) => {
+        if (
+          player &&
+          message.text[0] === "!" &&
+          !this.processedMessages.has(message.id)
+        ) {
+          this.runCommand(message.text.slice(1), player);
+          this.processedMessages.add(message.id);
+        }
+      });
       this.players[user.id] = player;
     });
-    messages.forEach((message) => {
-      const player = this.players[message.userId];
-      if (
-        player &&
-        message.text[0] === "!" &&
-        !this.processedMessages.has(message.id)
-      ) {
-        this.runCommand(message.text.slice(1), player);
-        this.processedMessages.add(message.id);
-      }
-    });
-    this.messages = messages;
   }
   runCommand(command: string, player: Player) {
     console.log("command", command);
@@ -120,20 +120,13 @@ export class Controller {
       player.lastMovedAt = Date.now();
     }
   }
-  getMessages() {
-    const ids = new Set<string>();
-    return this.messages
-      .sort((a, b) => b.publishedAt - a.publishedAt)
-      .filter((message) => {
-        return message.text[0] !== "!";
-      })
-      .filter((message) => {
-        const has = ids.has(message.userId);
-        ids.add(message.userId);
-        return !has;
-      });
-  }
   getPlayers() {
-    return Object.values(this.players);
+    const cutoff = Date.now() - 1000 * 60 * 10;
+    return Object.values(this.players).map((user) => ({
+      ...user,
+      messages: user.messages.filter(
+        (message) => message.text[0] !== "!" && message.publishedAt > cutoff
+      ),
+    }));
   }
 }

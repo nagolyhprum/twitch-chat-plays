@@ -1,10 +1,4 @@
-import type {
-  LiveStream,
-  Message,
-  StreamDetails,
-  User,
-  UserWithMessages,
-} from "./types";
+import type { LiveStream, StreamDetails, User } from "./types";
 
 export class YouTubeLiveStream implements LiveStream {
   private accessToken: string | null;
@@ -46,18 +40,18 @@ export class YouTubeLiveStream implements LiveStream {
       name: snippet.title,
     };
   }
-  private async getLiveChat(liveChatId: string): Promise<UserWithMessages[]> {
+  private async getLiveChat(liveChatId: string): Promise<User[]> {
     const json = await this.getRequest("youtube/v3/liveChat/messages", {
       liveChatId: liveChatId,
       part: ["authorDetails", "snippet"].join(","),
     });
     const ids = new Set<string>();
-    const usersById: Record<string, UserWithMessages> = {};
+    const usersById: Record<string, User> = {};
     return (
       json.items
-        ?.map((item: any): UserWithMessages => {
+        ?.map((item: any): User => {
           const id = item.authorDetails.channelId;
-          const user: UserWithMessages = usersById[id] || {
+          const user: User = usersById[id] || {
             id,
             name: item.authorDetails.displayName,
             source: "youtube",
@@ -79,14 +73,9 @@ export class YouTubeLiveStream implements LiveStream {
         }) ?? []
     );
   }
-  async getChatters(): Promise<User[]> {
+  async getChatters() {
     const stream = await this.getLiveBroadcast();
     const users = await this.getLiveChat(stream.broadcastId);
     return users.filter((user) => user.id !== stream.userId);
-  }
-  async getMessages(): Promise<Message[]> {
-    const stream = await this.getLiveBroadcast();
-    const users = await this.getLiveChat(stream.broadcastId);
-    return users.flatMap((user) => user.messages);
   }
 }
