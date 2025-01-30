@@ -12,10 +12,7 @@ const controller = new Controller();
 await controller.load();
 const view = new View(canvas, controller);
 
-const streams = [
-  // youtube,
-  twitch,
-];
+const streams = [youtube, twitch];
 
 let users: User[] = [];
 

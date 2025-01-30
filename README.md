@@ -111,4 +111,6 @@ Github:https://github.com/nagolyhprum/twitch-chat-plays
 - https://opengameart.org/content/rpg-character-sprites
 - https://opengameart.org/content/seamless-sky-backgrounds
 - https://opengameart.org/content/floating-islands-0
+  https://opengameart.org/content/coin-sounds-0
 - https://opengameart.org/content/plingy-coin
+- https://opengameart.org/content/barbed-wire-fence

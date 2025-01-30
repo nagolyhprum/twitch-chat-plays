@@ -20,6 +20,7 @@ const image = (src: string) => {
   return image;
 };
 
+const pole = image("/public/pole.png");
 const tiles = image("/public/tiles.png");
 const sky = image("/public/sky.png");
 const characters = image("/public/characters.png");
@@ -166,6 +167,22 @@ export class View {
       y: 0,
       elevation: 0,
     };
+  }
+  private drawPoles() {
+    for (let column = 0; column < COLUMNS - 1; column++) {
+      for (let row = 0; row < ROWS - 1; row++) {
+        const scale = 1.5;
+        const width = pole.width * scale;
+        const height = pole.height * scale;
+        this.backContext.drawImage(
+          pole,
+          column * CELL_SIZE + CELL_SIZE - width / 2,
+          row * CELL_SIZE + CELL_SIZE - height + 5 * scale,
+          width,
+          height
+        );
+      }
+    }
   }
   private drawCharacters(now: number) {
     this.controller.getPlayers(now).forEach((player) => {
@@ -331,6 +348,7 @@ export class View {
     this.drawIsland();
     this.drawGrid();
     this.drawCharacters(now);
+    this.drawPoles();
     this.drawNames(now);
     this.drawMessages(now);
     this.drawCoin(now);
