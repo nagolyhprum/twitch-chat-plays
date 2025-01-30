@@ -31,6 +31,7 @@ export interface Player {
   jumpedAt: number;
   commands: string[];
   coins: number;
+  lastActiveAt: number;
 }
 
 export interface LiveStream {

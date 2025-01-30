@@ -57,7 +57,8 @@ export class Controller {
       player.width = CHARACTER_SIZE;
       player.height = CHARACTER_SIZE;
       player.commands = [];
-      player.coins = 0;
+      player.coins = player.coins || 0;
+      player.lastActiveAt = player.lastActiveAt || 0;
     });
   }
   async save() {
@@ -97,9 +98,14 @@ export class Controller {
         jumpedAt: 0,
         commands: [],
         coins: 0,
+        lastActiveAt: now,
       };
       player.messages = user.messages;
       user.messages.forEach((message) => {
+        player.lastActiveAt = Math.max(
+          player.lastActiveAt,
+          message.publishedAt
+        );
         if (
           player &&
           message.text[0] === "!" &&
@@ -197,11 +203,14 @@ export class Controller {
   getPlayers(now: number) {
     const cutoff = now - 1000 * 60 * 5;
     return Object.values(this.players)
+      .filter((user) => now - user.lastActiveAt < 10 * 60 * 1000)
       .map((user) => ({
         ...user,
-        messages: user.messages.filter(
-          (message) => message.text[0] !== "!" && message.publishedAt > cutoff
-        ),
+        messages: user.messages
+          .filter(
+            (message) => message.text[0] !== "!" && message.publishedAt > cutoff
+          )
+          .sort((a, b) => b.publishedAt - a.publishedAt),
       }))
       .sort((a, b) => a.jumpedAt - b.jumpedAt);
   }
