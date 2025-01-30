@@ -14,8 +14,14 @@ import {
 import type { Controller } from "./controller";
 import type { Direction, Player } from "./types";
 
+const tiles = new Image();
+tiles.src = "/public/tiles.png";
+
+const sky = new Image();
+sky.src = "/public/sky.png";
+
 const characters = new Image();
-characters.src = "/public/RPG_assets.png";
+characters.src = "/public/characters.png";
 
 const youtubeIcon = new Image();
 youtubeIcon.src = "/public/youtube.svg";
@@ -99,12 +105,11 @@ export class View {
       this.context.moveTo(0, (row + 1) * CELL_SIZE);
       this.context.lineTo(COLUMNS * CELL_SIZE, (row + 1) * CELL_SIZE);
     });
-    this.context.rect(0, 0, CELL_SIZE * COLUMNS, CELL_SIZE * ROWS);
     this.context.lineWidth = 1;
     this.context.strokeStyle = "rgba(0, 0, 0, .3)";
     this.context.stroke();
   }
-  getAnimtionIndex(player: Player) {
+  private getAnimtionIndex(player: Player) {
     const offset = Date.now() - (player.lastMovedAt || 0);
     if (offset > ANIMATION_LENGTH) {
       return 0;
@@ -113,7 +118,7 @@ export class View {
       animationMap[Math.floor(offset / WALK_SPEED) % animationMap.length] ?? 0
     );
   }
-  getOffset(player: Player) {
+  private getOffset(player: Player) {
     const offset = Date.now() - (player.lastMovedAt || 0);
     if (offset > ANIMATION_LENGTH) {
       return {
@@ -167,8 +172,7 @@ export class View {
     });
   }
   private clear() {
-    this.context.fillStyle = "red";
-    this.context.fillRect(0, 0, WIDTH, HEIGHT);
+    this.context.clearRect(0, 0, WIDTH, HEIGHT);
   }
   private drawMessages() {
     this.context.fillStyle = "black";
@@ -193,7 +197,25 @@ export class View {
       }
     });
   }
-  drawLoader() {
+  private drawSky() {
+    const pattern = this.context.createPattern(sky, "repeat")!;
+    const width = sky.width;
+    const height = sky.height;
+    const now = Date.now();
+    const timing = 15_000;
+    const xPercent = (Math.sin((2 * Math.PI * now) / timing) + 1) / 2;
+    const yPercent = (Math.cos((2 * Math.PI * now) / timing) + 1) / 2;
+    const x = (width - WIDTH) * xPercent;
+    const y = (height - HEIGHT) * yPercent;
+
+    this.context.save();
+    this.context.globalAlpha = 0.7;
+    this.context.translate(-x, -y);
+    this.context.fillStyle = pattern;
+    this.context.fillRect(0, 0, width, height);
+    this.context.restore();
+  }
+  private drawLoader() {
     const theta = ((2 * Math.PI * Date.now()) / 1000) % (2 * Math.PI);
     this.context.strokeStyle = "black";
     this.context.beginPath();
@@ -211,10 +233,40 @@ export class View {
     );
     this.context.stroke();
   }
+  private drawIsland() {
+    for (let column = 1; column < COLUMNS - 1; column++) {
+      for (let row = 1; row < ROWS - 1; row++) {
+        this.drawTile(0, 0, column, row);
+      }
+      this.drawTile(1, 2, column, ROWS - 1);
+      this.drawTile(3, 2, column, 0);
+    }
+    for (let row = 1; row < ROWS - 1; row++) {
+      this.drawTile(0, 2, COLUMNS - 1, row);
+      this.drawTile(2, 2, 0, row);
+    }
+    this.drawTile(3, 4, 0, ROWS - 1);
+    this.drawTile(4, 4, 0, 0);
+    this.drawTile(5, 4, COLUMNS - 1, 0);
+    this.drawTile(2, 4, COLUMNS - 1, ROWS - 1);
+  }
+  private drawTile(sc: number, sr: number, dc: number, dr: number) {
+    const sw = 256 / 16,
+      sh = 256 / 16,
+      sx = sc * sw,
+      sy = sr * sh,
+      dx = CELL_SIZE * dc,
+      dy = CELL_SIZE * dr,
+      dw = CELL_SIZE,
+      dh = CELL_SIZE;
+    this.context.drawImage(tiles, sx, sy, sw, sh, dx, dy, dw, dh);
+  }
   draw() {
     this.clear();
+    this.drawSky();
     this.context.save();
     this.context.translate(CELL_OFFSET_X, CELL_OFFSET_y);
+    this.drawIsland();
     this.drawGrid();
     this.drawCharacters();
     this.drawNames();

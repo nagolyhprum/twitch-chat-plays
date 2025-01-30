@@ -58,12 +58,17 @@ Feel free to check [our documentation](https://docs.astro.build) or jump into ou
 - when they chat show a speech bubble
 - Saving characters
 - Animate characters
+- Coin should have a shadow
+- Make the background look nice
 
 # Todo
 
+- Make the coin look more floaty
+- Chat how chat is tracked
+- Add jump
 - Add a floating coin the moves to random tiles
+- Maze
 - Colleting coins increases coin count
-- Coin should have a shadow
 
 Coding a Twitch Chat Plays Game from Scratch
 
@@ -82,3 +87,5 @@ Github:https://github.com/nagolyhprum/twitch-chat-plays
 
 - https://opengameart.org/content/rotating-coin
 - https://opengameart.org/content/rpg-character-sprites
+- https://opengameart.org/content/seamless-sky-backgrounds
+- https://opengameart.org/content/floating-islands-0
