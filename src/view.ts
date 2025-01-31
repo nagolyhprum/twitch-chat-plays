@@ -12,7 +12,13 @@ import {
   WIDTH,
 } from "./constant";
 import type { Controller } from "./controller";
-import { ALL_WALLS, LEFT_WALL, TOP_WALL } from "./maze";
+import {
+  ALL_WALLS,
+  LEFT_DOOR_INDEX,
+  LEFT_WALL,
+  TOP_DOOR_INDEX,
+  TOP_WALL,
+} from "./maze";
 import type { Direction, Player } from "./types";
 
 const image = (src: string) => {
@@ -21,7 +27,7 @@ const image = (src: string) => {
   return image;
 };
 
-const doors = ["#ff00ce", "#fff400", "#00ffec"];
+const DOORS = ["#ff00ce", "#fff400", "#00ffec", "#ffffff"];
 
 const pole = image("/public/pole.png");
 const tiles = image("/public/tiles.png");
@@ -187,10 +193,23 @@ export class View {
           width,
           height
         );
+        const target = data[row]?.[column];
+        const walls = target?.walls ?? ALL_WALLS;
+        const key = target?.key ?? -1;
+        const doors = target?.doors ?? [];
+        if (key !== -1) {
+          this.backContext.fillStyle = DOORS[key]!;
+          const keySize = CELL_SIZE / 4;
+          this.backContext.fillRect(
+            column * CELL_SIZE + CELL_SIZE + CELL_SIZE / 2 - keySize / 2,
+            row * CELL_SIZE + CELL_SIZE + CELL_SIZE / 2 - keySize / 2,
+            keySize,
+            keySize
+          );
+        }
         if (column < COLUMNS - 2) {
           // -
-          const hasWall = data[row]?.[column]?.walls ?? ALL_WALLS;
-          if (hasWall & TOP_WALL) {
+          if (walls & TOP_WALL) {
             this.backContext.drawImage(
               horizontalBarbs,
               column * CELL_SIZE + CELL_SIZE + width / 2,
@@ -199,8 +218,7 @@ export class View {
               CELL_SIZE / 3
             );
           }
-          // TODO DETECT DOOR
-          const door = doors[(row + column) % doors.length];
+          const door = DOORS[doors[TOP_DOOR_INDEX] ?? -1];
           if (door) {
             this.backContext.beginPath();
             for (let i = 0; i < 3; i++) {
@@ -219,8 +237,7 @@ export class View {
         }
         if (row < ROWS - 2) {
           // |
-          const hasWall = data[row]?.[column]?.walls ?? ALL_WALLS;
-          if (hasWall & LEFT_WALL) {
+          if (walls & LEFT_WALL) {
             this.backContext.drawImage(
               verticalBarbs,
               column * CELL_SIZE + CELL_SIZE - verticalBarbs.width / 2,
@@ -230,7 +247,7 @@ export class View {
             );
           }
           // TODO DETECT DOOR
-          const door = doors[(row + column) % doors.length];
+          const door = DOORS[doors[LEFT_DOOR_INDEX] ?? -1];
           if (door) {
             this.backContext.beginPath();
             this.backContext.moveTo(

@@ -1,10 +1,14 @@
 import { ANIMATION_LENGTH, CHARACTER_SIZE, COLUMNS, ROWS } from "./constant";
 import {
   ALL_WALLS,
+  BOTTOM_DOOR_INDEX,
   BOTTOM_WALL,
+  LEFT_DOOR_INDEX,
   LEFT_WALL,
   Maze,
+  RIGHT_DOOR_INDEX,
   RIGHT_WALL,
+  TOP_DOOR_INDEX,
   TOP_WALL,
 } from "./maze";
 import { isDirection, type Coin, type Player, type User } from "./types";
@@ -51,11 +55,11 @@ export class Controller {
     const data = this.maze
       .generate()
       .flat()
-      .sort((a, b) => b.distance - a.distance)[0]!;
+      .find((cell) => cell.isLast);
     const coin: Coin = {
       collectedAt: 0,
-      column: data.column + 1,
-      row: data.row + 1,
+      column: (data?.column ?? 0) + 1,
+      row: (data?.row ?? 0) + 1,
     };
     Object.values(this.players).forEach((player) => {
       player.column = 1;
@@ -198,30 +202,33 @@ export class Controller {
     if (isDirection(direction)) {
       const row = player.row;
       const column = player.column;
-      const walls =
-        this.maze.getData()[player.row - 1]?.[player.column - 1]?.walls ??
-        ALL_WALLS;
+      const cell = this.maze.getData()[player.row - 1]?.[player.column - 1];
+      const walls = cell?.walls ?? ALL_WALLS;
+      const doors = cell?.doors ?? [];
       switch (direction) {
         case "up": {
-          if (!(walls & TOP_WALL)) {
+          if (!(walls & TOP_WALL) && doors[TOP_DOOR_INDEX] === undefined) {
             player.row--;
           }
           break;
         }
         case "right": {
-          if (!(walls & RIGHT_WALL)) {
+          if (!(walls & RIGHT_WALL) && doors[RIGHT_DOOR_INDEX] === undefined) {
             player.column++;
           }
           break;
         }
         case "down": {
-          if (!(walls & BOTTOM_WALL)) {
+          if (
+            !(walls & BOTTOM_WALL) &&
+            doors[BOTTOM_DOOR_INDEX] === undefined
+          ) {
             player.row++;
           }
           break;
         }
         case "left": {
-          if (!(walls & LEFT_WALL)) {
+          if (!(walls & LEFT_WALL) && doors[LEFT_DOOR_INDEX] === undefined) {
             player.column--;
           }
           break;
