@@ -199,13 +199,18 @@ export class View {
         const doors = target?.doors ?? [];
         if (key !== -1) {
           this.backContext.fillStyle = DOORS[key]!;
-          const keySize = CELL_SIZE / 4;
-          this.backContext.fillRect(
-            column * CELL_SIZE + CELL_SIZE + CELL_SIZE / 2 - keySize / 2,
-            row * CELL_SIZE + CELL_SIZE + CELL_SIZE / 2 - keySize / 2,
+          const keySize = CELL_SIZE / 8;
+          this.backContext.beginPath();
+          this.backContext.ellipse(
+            column * CELL_SIZE + CELL_SIZE + CELL_SIZE / 2,
+            row * CELL_SIZE + CELL_SIZE + CELL_SIZE / 2,
             keySize,
-            keySize
+            keySize,
+            0,
+            0,
+            2 * Math.PI
           );
+          this.backContext.fill();
         }
         if (column < COLUMNS - 2) {
           // -

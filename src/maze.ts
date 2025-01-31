@@ -13,7 +13,7 @@ interface MazeCell {
   distance: number;
   row: number;
   column: number;
-  doors: number[];
+  doors: Array<number | undefined>;
   key: number;
   isLast: boolean;
 }
@@ -139,5 +139,18 @@ export class Maze {
   }
   getData() {
     return this.data;
+  }
+  collect(row: number, column: number) {
+    const cell = this.data[row]?.[column];
+    const key = cell?.key ?? -1;
+    if (key !== -1) {
+      cell!.key = -1;
+      this.data.flat().forEach((cell) => {
+        const index = cell.doors.indexOf(key);
+        if (index !== -1) {
+          cell.doors[index] = undefined;
+        }
+      });
+    }
   }
 }

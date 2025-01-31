@@ -239,6 +239,7 @@ export class Controller {
       player.direction = direction;
       if (player.row !== row || player.column !== column) {
         player.lastMovedAt = now;
+        this.maze.collect(player.row - 1, player.column - 1);
       }
     } else {
       player.commands.push(...tokens.flatMap((token) => token.split("")));
