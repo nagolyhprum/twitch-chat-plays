@@ -72,11 +72,11 @@ Feel free to check [our documentation](https://docs.astro.build) or jump into ou
 - Does not keep commands queued
 - Make it more responsive - instant feedback
 - Show coin count
+- Maze
+- Add Keys
 
 # Todo
 
-- Maze
-- Add Keys
 - Add Enemies
 
 Coding a Twitch Chat Plays Game from Scratch
