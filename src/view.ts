@@ -12,6 +12,7 @@ import {
   WIDTH,
 } from "./constant";
 import type { Controller } from "./controller";
+import { ALL_WALLS, LEFT_WALL, TOP_WALL } from "./maze";
 import type { Direction, Player } from "./types";
 
 const image = (src: string) => {
@@ -171,6 +172,7 @@ export class View {
     };
   }
   private drawFence() {
+    const data = this.controller.getMaze().getData();
     for (let column = 0; column < COLUMNS - 1; column++) {
       for (let row = 0; row < ROWS - 1; row++) {
         const scale = 1.5;
@@ -184,22 +186,28 @@ export class View {
           height
         );
         if (column < COLUMNS - 2) {
-          this.backContext.drawImage(
-            horizontalBarbs,
-            column * CELL_SIZE + CELL_SIZE + width / 2,
-            row * CELL_SIZE + CELL_SIZE - (3 * height) / 4,
-            CELL_SIZE,
-            CELL_SIZE / 2
-          );
+          const hasWall = data[row]?.[column]?.walls ?? ALL_WALLS;
+          if (hasWall & TOP_WALL) {
+            this.backContext.drawImage(
+              horizontalBarbs,
+              column * CELL_SIZE + CELL_SIZE + width / 2,
+              row * CELL_SIZE + CELL_SIZE - height / 2 - 5,
+              CELL_SIZE,
+              CELL_SIZE / 3
+            );
+          }
         }
         if (row < ROWS - 2) {
-          this.backContext.drawImage(
-            verticalBarbs,
-            column * CELL_SIZE + CELL_SIZE - verticalBarbs.width / 2,
-            row * CELL_SIZE + CELL_SIZE - (3 * height) / 4,
-            5,
-            CELL_SIZE
-          );
+          const hasWall = data[row]?.[column]?.walls ?? ALL_WALLS;
+          if (hasWall & LEFT_WALL) {
+            this.backContext.drawImage(
+              verticalBarbs,
+              column * CELL_SIZE + CELL_SIZE - verticalBarbs.width / 2,
+              row * CELL_SIZE + CELL_SIZE - (3 * height) / 4,
+              5,
+              CELL_SIZE
+            );
+          }
         }
       }
     }
@@ -263,7 +271,7 @@ export class View {
         iconSize,
         iconSize
       );
-      this.backContext.fillStyle = "black";
+      this.backContext.fillStyle = "white";
       this.backContext.font = `${FONT_SIZE}px sans-serif`;
       this.backContext.textAlign = "center";
       this.backContext.textBaseline = "top";
@@ -279,7 +287,7 @@ export class View {
     this.backContext.clearRect(0, 0, WIDTH, HEIGHT);
   }
   private drawMessages(now: number) {
-    this.backContext.fillStyle = "black";
+    this.backContext.fillStyle = "white";
     this.backContext.textAlign = "center";
     this.backContext.textBaseline = "top";
     this.backContext.font = `${FONT_SIZE}px sans-serif`;
@@ -366,7 +374,7 @@ export class View {
     this.context.save();
     this.context.translate(CELL_OFFSET_X, CELL_OFFSET_y);
     this.drawIsland();
-    this.drawGrid();
+    // this.drawGrid();
     this.drawCharacters(now);
     this.drawFence();
     this.drawNames(now);

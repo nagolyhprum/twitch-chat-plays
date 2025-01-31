@@ -1,4 +1,12 @@
 import { ANIMATION_LENGTH, CHARACTER_SIZE, COLUMNS, ROWS } from "./constant";
+import {
+  ALL_WALLS,
+  BOTTOM_WALL,
+  LEFT_WALL,
+  Maze,
+  RIGHT_WALL,
+  TOP_WALL,
+} from "./maze";
 import { isDirection, type Coin, type Player, type User } from "./types";
 
 const audio = (src: string) => {
@@ -27,19 +35,36 @@ const commandMap: Record<string, string> = {
 };
 
 export class Controller {
+  private maze: Maze;
   private coin: Coin;
   private players: Record<string, Player>;
   private processedMessages = new Set<string>();
   constructor() {
     this.players = {};
+    this.maze = new Maze(ROWS - 2, COLUMNS - 2);
     this.coin = this.moveCoin();
   }
+  getMaze() {
+    return this.maze;
+  }
   private moveCoin() {
+    const data = this.maze
+      .generate()
+      .flat()
+      .sort((a, b) => b.distance - a.distance)[0]!;
     const coin: Coin = {
       collectedAt: 0,
-      column: Math.floor(Math.random() * COLUMNS),
-      row: Math.floor(Math.random() * ROWS),
+      column: data.column + 1,
+      row: data.row + 1,
     };
+    Object.values(this.players).forEach((player) => {
+      player.column = 1;
+      player.row = 1;
+      player.lastMovedAt = 0;
+      player.jumpedAt = 0;
+      player.commands = [];
+      player.direction = "down";
+    });
     this.coin = coin;
     return coin;
   }
@@ -59,6 +84,7 @@ export class Controller {
       player.commands = [];
       player.coins = player.coins || 0;
       player.lastActiveAt = player.lastActiveAt || 0;
+      player.fill = "white";
     });
   }
   async save() {
@@ -91,7 +117,7 @@ export class Controller {
         row: Math.floor(Math.random() * ROWS),
         width: CHARACTER_SIZE,
         height: CHARACTER_SIZE,
-        fill: "black",
+        fill: "white",
         character: Math.floor(Math.random() * 4),
         direction: "down",
         lastMovedAt: 0,
@@ -172,21 +198,32 @@ export class Controller {
     if (isDirection(direction)) {
       const row = player.row;
       const column = player.column;
+      const walls =
+        this.maze.getData()[player.row - 1]?.[player.column - 1]?.walls ??
+        ALL_WALLS;
       switch (direction) {
         case "up": {
-          player.row--;
+          if (!(walls & TOP_WALL)) {
+            player.row--;
+          }
           break;
         }
         case "right": {
-          player.column++;
+          if (!(walls & RIGHT_WALL)) {
+            player.column++;
+          }
           break;
         }
         case "down": {
-          player.row++;
+          if (!(walls & BOTTOM_WALL)) {
+            player.row++;
+          }
           break;
         }
         case "left": {
-          player.column--;
+          if (!(walls & LEFT_WALL)) {
+            player.column--;
+          }
           break;
         }
       }
