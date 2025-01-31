@@ -21,6 +21,8 @@ const image = (src: string) => {
   return image;
 };
 
+const doors = ["#ff00ce", "#fff400", "#00ffec"];
+
 const pole = image("/public/pole.png");
 const tiles = image("/public/tiles.png");
 const sky = image("/public/sky.png");
@@ -186,6 +188,7 @@ export class View {
           height
         );
         if (column < COLUMNS - 2) {
+          // -
           const hasWall = data[row]?.[column]?.walls ?? ALL_WALLS;
           if (hasWall & TOP_WALL) {
             this.backContext.drawImage(
@@ -196,8 +199,26 @@ export class View {
               CELL_SIZE / 3
             );
           }
+          // TODO DETECT DOOR
+          const door = doors[(row + column) % doors.length];
+          if (door) {
+            this.backContext.beginPath();
+            for (let i = 0; i < 3; i++) {
+              this.backContext.moveTo(
+                column * CELL_SIZE + CELL_SIZE + width / 2,
+                row * CELL_SIZE + CELL_SIZE - height / 2 - 5 + (height / 3) * i
+              );
+              this.backContext.lineTo(
+                column * CELL_SIZE + CELL_SIZE + CELL_SIZE - width / 2,
+                row * CELL_SIZE + CELL_SIZE - height / 2 - 5 + (height / 3) * i
+              );
+            }
+            this.backContext.strokeStyle = door;
+            this.backContext.stroke();
+          }
         }
         if (row < ROWS - 2) {
+          // |
           const hasWall = data[row]?.[column]?.walls ?? ALL_WALLS;
           if (hasWall & LEFT_WALL) {
             this.backContext.drawImage(
@@ -207,6 +228,21 @@ export class View {
               5,
               CELL_SIZE
             );
+          }
+          // TODO DETECT DOOR
+          const door = doors[(row + column) % doors.length];
+          if (door) {
+            this.backContext.beginPath();
+            this.backContext.moveTo(
+              column * CELL_SIZE + CELL_SIZE,
+              row * CELL_SIZE + CELL_SIZE - height / 2
+            );
+            this.backContext.lineTo(
+              column * CELL_SIZE + CELL_SIZE,
+              row * CELL_SIZE + CELL_SIZE + CELL_SIZE
+            );
+            this.backContext.strokeStyle = door;
+            this.backContext.stroke();
           }
         }
       }
